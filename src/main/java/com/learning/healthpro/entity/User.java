@@ -1,35 +1,28 @@
-package com.learning.healthpro.dao;
+package com.learning.healthpro.entity;
 
 import jakarta.persistence.*;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
-@Entity
-@Table(name = "user")
+
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "id")
+
     private int id;
 
-    @Column(name = "name")
     private String name;
 
-    @Column(name = "password")
     private String password;
 
-    @Column(name = "phone")
     private String phone;
 
-    @Column(name = "email")
     private String email;
 
-    @Column(name = "age")
     private int age;
 
-    @Column(name = "gender")
     private String gender;
+
+    public User(){};
 
     public int getId() {
         return id;

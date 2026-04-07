@@ -2,6 +2,6 @@ package com.learning.healthpro.service;
 
 import com.learning.healthpro.entity.User;
 
-public interface LoginService {
-    public boolean LoginCheck(User user);
+public interface UserInfoService {
+    public User getInfo(int id);
 }

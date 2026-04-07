@@ -1,4 +1,4 @@
-package com.learning.healthpro.Service;
+package com.learning.healthpro.service.impl;
 
 import org.springframework.stereotype.Service;
 

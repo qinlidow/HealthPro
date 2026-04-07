@@ -1,6 +1,6 @@
-package com.learning.healthpro.Service;
+package com.learning.healthpro.service;
 
-import com.learning.healthpro.dao.User;
+import com.learning.healthpro.entity.User;
 
 public interface RegisterService {
 
