@@ -4,6 +4,7 @@ import com.learning.healthpro.entity.User;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.Optional;
 
@@ -14,7 +15,7 @@ public interface UserMapper  {
     @Select("select password from user where phone = #{id}")
     Optional<String> findPassWordByPhone(String phone);
 
-    @Select("select count(u) from user u where u.phone = #{phone}")
+    @Select("select count(*) from user  where phone = #{phone}")
     Long countByPhone(String phone);
 
     @Select("select id from user where phone = #{phone}")
@@ -26,6 +27,7 @@ public interface UserMapper  {
     @Insert("insert into user(name,password,phone,email) values(#{name},#{password},#{phone},#{email})")
     int insert(User user);
 
+    int UpdateUserInfo(User user,int id);
 }
 
 

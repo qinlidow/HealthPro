@@ -1,5 +1,6 @@
 package com.learning.healthpro.controller;
 
+import com.learning.healthpro.common.Result;
 import com.learning.healthpro.service.LoginService;
 import com.learning.healthpro.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,15 @@ public class LoginController {
     private LoginService loginService;
 
     @GetMapping("/Login")
-    public boolean Login(@RequestBody User user){
-        boolean result = loginService.LoginCheck(user);
-        return result;
+    public Result Login(@RequestBody User user){
+        boolean isright = loginService.LoginCheck(user);
+        if(isright == true){
+            System.out.println("登陆成功");
+            return Result.success();
+        }
+        else{
+            System.out.println("登录失败");
+            return Result.error("账号不存在或密码不正确");
+        }
     }
 }
