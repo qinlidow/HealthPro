@@ -1,8 +1,6 @@
 package com.learning.healthpro.entity;
 
-import jakarta.persistence.*;
 
-import static jakarta.persistence.GenerationType.IDENTITY;
 
 
 public class User {

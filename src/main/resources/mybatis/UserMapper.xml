@@ -5,7 +5,7 @@
 
 <mapper namespace="com.learning.healthpro.mapper.UserMapper">
     <select id="findPassWordByPhone" resultType="String">
-        select password from user where phone = #{id}
+        select password from user where phone = #{phone}
     </select>
 
     <select id="countByPhone" resultType="Long">
@@ -16,7 +16,7 @@
         select id from user where phone = #{phone}
     </select>
 
-    <select id="selectById" resultType="com.learning.healthpro.entity.User">
+    <select id="getInfoById" resultType="com.learning.healthpro.entity.User">
         select name,phone,email,age,gender from user where id = #{id}
     </select>
 
@@ -27,22 +27,26 @@
     <update id="UpdateUserInfo">
         update user
         <set>
-            <if test="name != none and name != ''">
-                name = #{name}
+            <if test="user.name != null and user.name != ''">
+                name = #{user.name},
             </if>
-            <if test="phone != none and phone != ''">
-                phone = #{phone}
+            <if test="user.phone != null and user.phone != ''">
+                phone = #{user.phone},
             </if>
-            <if test="email != none and email != ''">
-                email = #{email}
+            <if test="user.email != null and user.email != ''">
+                email = #{user.email},
             </if>
-            <if test="age != none and age != ''">
-                age = #{age}
+            <if test="user.age != null and user.age != ''">
+                age = #{user.age},
             </if>
-            <if test="gender != none and gender != ''">
-                gender = #{gender}
+            <if test="user.gender != null and user.gender != ''">
+                gender = #{user.gender}
             </if>
         </set>
         where id = #{id}
+    </update>
+
+    <update id="UpdatePassWord">
+        update user set password = #{password} where id = #{id}
     </update>
 </mapper>

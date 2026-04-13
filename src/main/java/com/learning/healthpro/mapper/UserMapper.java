@@ -12,22 +12,19 @@ import java.util.Optional;
 @Mapper
 public interface UserMapper  {
 
-    @Select("select password from user where phone = #{id}")
     Optional<String> findPassWordByPhone(String phone);
 
-    @Select("select count(*) from user  where phone = #{phone}")
     Long countByPhone(String phone);
 
-    @Select("select id from user where phone = #{phone}")
     int findIdByPhone(String phone);
 
-    @Select("select name,phone,email,age,gender from user where id = #{id}")
-    User selectById(int id);
+    User getInfoById(int id);
 
-    @Insert("insert into user(name,password,phone,email) values(#{name},#{password},#{phone},#{email})")
     int insert(User user);
 
     int UpdateUserInfo(User user,int id);
+
+    int UpdatePassWord(String password,int id);
 }
 
 

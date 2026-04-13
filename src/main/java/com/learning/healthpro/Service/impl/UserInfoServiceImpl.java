@@ -13,6 +13,6 @@ public class UserInfoServiceImpl implements UserInfoService {
     UserMapper userMapper;
 
     public User getInfo(int id){
-        return userMapper.selectById(id);
+        return userMapper.getInfoById(id);
     }
 }
