@@ -8,3 +8,7 @@ Spring:
 mybatis:
   mapper-locations: classpath:mybatis/*.xml
   type-aliases-package: com.learning.healthpro.entity
+
+jwt:
+  secret: HealthPro2026SecretKeyForJwtTokenGeneration
+  expiration: 86400000
