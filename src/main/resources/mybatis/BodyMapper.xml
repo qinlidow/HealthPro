@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learning.healthpro.mapper.BodyMapper">
+    <select id="getBodyByUserId" resultType="com.learning.healthpro.entity.Body">
+        select id,height,weight,fat_pre,sugar,pressure_h,pressure_l,date from body where user_id = #{user_id}
+    </select>
+
+    <insert id="insertBodyById">
+        insert into body(height,weight,fat_pre,sugar,pressure_h,pressure_l,date,user_id)
+            value (#{body.height},#{body.weight},#{body.fat_pre},#{body.sugar},#{body.pressure_h},#{body.pressure_l},#{body.date},#{user_id})
+    </insert>
+
+    <delete id="deleteBodyById">
+        delete
+        from body
+        where id = #{id};
+    </delete>
+
+    <update id="int setBodyById(Body body,int id);">
+        update body
+        <set>
+            <if test="body.height != null and body.height != ''">
+                height = #{body.height}
+            </if>
+            <if test="body.weight != null and body.height != ''">
+                weight = #{body.weight}
+            </if>
+            <if test="body.fat_pre != null and body.fat_pre != ''">
+                fat_pre = #{body.fat_pre}
+            </if>
+            <if test="body.sugar != null and body.sugar != ''">
+                sugar = #{body.sugar}
+            </if>
+            <if test="body.pressure_h != null and body.pressure_h != ''">
+                pressure_h = #{body.pressure_h}
+            </if>
+            <if test="body.pressure_l != null and body.pressure_l != ''">
+                pressure_l = #{body.pressure_l}
+            </if>
+            <if test="body.date != null and body.date != '' ">
+                date = #{body.date}
+            </if>
+        </set>
+        where id = #{id};
+    </update>
+
+
+
+</mapper>

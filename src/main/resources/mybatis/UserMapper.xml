@@ -46,6 +46,7 @@
         where id = #{id}
     </update>
 
+
     <update id="UpdatePassWord">
         update user set password = #{password} where id = #{id}
     </update>
