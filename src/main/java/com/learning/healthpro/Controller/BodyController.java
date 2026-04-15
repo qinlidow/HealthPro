@@ -1,6 +1,7 @@
 package com.learning.healthpro.controller;
 
 import com.learning.healthpro.common.Result;
+import com.learning.healthpro.context.ConcurrentContext;
 import com.learning.healthpro.entity.Body;
 import com.learning.healthpro.service.BodyService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,8 +16,8 @@ public class BodyController {
     private BodyService bodyService;
 
     @PostMapping("/GetBody")
-    public Result getBody(HttpServletRequest request){
-        Integer id = (Integer) request.getAttribute("userId");
+    public Result getBody(){
+        Integer id = ConcurrentContext.get();
         System.out.println(id);
         if (id == null){
             return Result.error("未找到用户信息");
@@ -25,8 +26,8 @@ public class BodyController {
     }
 
     @PostMapping("/AddBody")
-    public Result addBody(@RequestBody Body body, HttpServletRequest request){
-        Integer id = (Integer) request.getAttribute("userId");
+    public Result addBody(@RequestBody Body body){
+        Integer id = ConcurrentContext.get();
         System.out.println(id);
         if(id == null){
             return Result.error("未找到用户信息");
@@ -36,8 +37,8 @@ public class BodyController {
     }
 
     @PostMapping("/SetBody/{id}")
-    public  Result setBody(@RequestBody Body body, @PathVariable int id,HttpServletRequest request){
-        Integer user_id = (Integer) request.getAttribute("userId");
+    public  Result setBody(@RequestBody Body body, @PathVariable int id){
+        Integer user_id = ConcurrentContext.get();
         System.out.println(user_id);
         if(user_id == null){
             return Result.error("未找到用户信息");
@@ -47,8 +48,8 @@ public class BodyController {
     }
 
     @DeleteMapping("/DeleteBody/{id}")
-    public Result deleteBody(@PathVariable int id,HttpServletRequest request){
-       Integer user_id = (Integer) request.getAttribute("userId");
+    public Result deleteBody(@PathVariable int id){
+       Integer user_id = ConcurrentContext.get();
        if(user_id == null){
            return Result.error("未找到用户信息");
        }

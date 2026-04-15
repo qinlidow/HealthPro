@@ -1,5 +1,7 @@
 package com.learning.healthpro.entity;
 
+import lombok.Getter;
+
 public class Body {
 
     int id;

@@ -1,5 +1,6 @@
 package com.learning.healthpro.service.impl;
 
+import com.learning.healthpro.context.ConcurrentContext;
 import com.learning.healthpro.entity.User;
 import com.learning.healthpro.mapper.UserMapper;
 import com.learning.healthpro.service.UserInfoService;
@@ -13,6 +14,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     UserMapper userMapper;
 
     public User getInfo(int id){
+        Integer i = ConcurrentContext.get();
         return userMapper.getInfoById(id);
     }
 }

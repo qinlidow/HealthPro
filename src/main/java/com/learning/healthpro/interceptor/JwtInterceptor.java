@@ -1,5 +1,6 @@
 package com.learning.healthpro.interceptor;
 
+import com.learning.healthpro.context.ConcurrentContext;
 import com.learning.healthpro.utils.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,7 +33,7 @@ public class JwtInterceptor implements HandlerInterceptor {
                 return false;
             }
             Integer userId = jwtUtil.getUserIdFromToken(token);
-            request.setAttribute("userId", userId);
+            ConcurrentContext.set(userId);
             return true;
         } catch (Exception e) {
             response.setStatus(401);
@@ -40,5 +41,10 @@ public class JwtInterceptor implements HandlerInterceptor {
             response.getWriter().write("{\"code\":401,\"message\":\"Token无效\",\"data\":null}");
             return false;
         }
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request,HttpServletResponse response,Object handler,Exception e) throws Exception{
+        ConcurrentContext.remove();
     }
 }

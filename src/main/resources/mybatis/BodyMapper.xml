@@ -19,26 +19,26 @@
         where id = #{id};
     </delete>
 
-    <update id="int setBodyById(Body body,int id);">
+    <update id="int setBodyById">
         update body
         <set>
             <if test="body.height != null and body.height != ''">
-                height = #{body.height}
+                height = #{body.height},
             </if>
             <if test="body.weight != null and body.height != ''">
-                weight = #{body.weight}
+                weight = #{body.weight},
             </if>
             <if test="body.fat_pre != null and body.fat_pre != ''">
-                fat_pre = #{body.fat_pre}
+                fat_pre = #{body.fat_pre},
             </if>
             <if test="body.sugar != null and body.sugar != ''">
-                sugar = #{body.sugar}
+                sugar = #{body.sugar},
             </if>
             <if test="body.pressure_h != null and body.pressure_h != ''">
-                pressure_h = #{body.pressure_h}
+                pressure_h = #{body.pressure_h},
             </if>
             <if test="body.pressure_l != null and body.pressure_l != ''">
-                pressure_l = #{body.pressure_l}
+                pressure_l = #{body.pressure_l},
             </if>
             <if test="body.date != null and body.date != '' ">
                 date = #{body.date}

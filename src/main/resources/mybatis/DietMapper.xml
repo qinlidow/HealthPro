@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learning.healthpro.mapper.DietMapper">
+    <select id="getDietByUserId" resultType="com.learning.healthpro.entity.Diet">
+        select id,breakfast,lunch,dinner,remark,date from diet where user_id = #{user_id}
+    </select>
+
+    <insert id="insertDietById">
+        insert into diet(breakfast,lunch,dinner,remark,date,user_id)
+            value (#{diet.breakfast},#{diet.lunch},#{diet.dinner},#{diet.remark},#{diet.date},#{user_id})
+    </insert>
+
+    <delete id="deleteDietById">
+        delete
+        from diet
+        where id = #{id};
+    </delete>
+
+    <update id="int setDietById">
+        update diet
+        <set>
+            <if test="diet.breakfast != null and diet.breakfast != ''">
+                breakfast = #{diet.breakfast},
+            </if>
+            <if test="diet.lunch != null and diet.lunch != ''">
+                lunch = #{diet.lunch},
+            </if>
+            <if test="diet.dinner != null and diet.dinner != ''">
+                dinner = #{diet.dinner},
+            </if>
+            <if test="diet.remark != null and diet.remark != ''">
+                remark = #{diet.remark},
+            </if>
+            <if test="diet.date != null and diet.date != ''">
+                date = #{diet,date}
+            </if>
+        </set>
+        where id = #{id};
+    </update>
+
+
+
+</mapper>
