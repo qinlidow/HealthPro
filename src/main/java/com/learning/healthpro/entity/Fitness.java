@@ -9,17 +9,17 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Sleep {
+public class Fitness {
 
     int id;
 
+    String type;
+
     float duration;
 
-    float deep_sleep;
+    float heart_rate;
 
-    float light_sleep;
-
-    float rem_sleep;
+    float calories;
 
     String date;
 

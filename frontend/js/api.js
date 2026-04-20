@@ -40,18 +40,19 @@ const API_ENDPOINTS = {
     
     // 睡眠管理相关
     sleep: {
-        // get: '/Sleep/GetSleep',
-        // add: '/Sleep/AddSleep',
-        // update: '/Sleep/SetSleep',
-        // delete: '/Sleep/DeleteSleep'
+        get: '/Sleep/GetSleep',
+        getById: '/Sleep/GetSleepById',
+        add: '/Sleep/AddSleep',
+        update: '/Sleep/SetSleep',
+        delete: '/Sleep/DeleteSleep'
     },
     
     // 健身管理相关
     fitness: {
-        // get: '/Fitness/GetFitness',
-        // add: '/Fitness/AddFitness',
-        // update: '/Fitness/SetFitness',
-        // delete: '/Fitness/DeleteFitness'
+        get: '/Fitness/GetFitness',
+        add: '/Fitness/AddFitness',
+        update: '/Fitness/SetFitness',
+        delete: '/Fitness/DeleteFitness'
     },
     
     // 社交广场相关（已实现）
@@ -339,47 +340,43 @@ const api = {
     },
     
     // ==================== 睡眠管理 ====================
-    
-    /**
-     * 获取睡眠数据
-     * TODO: 后端接口未实现，实体类为空
-     */
+
     async getSleepData() {
-        // TODO: 后端接口未实现，使用模拟数据
-        console.warn('睡眠管理接口未实现，使用模拟数据');
-        return this.getMockSleepData();
+        return await http.get(API_ENDPOINTS.sleep.get);
     },
-    
-    /**
-     * 添加睡眠数据
-     * TODO: 后端接口未实现
-     */
+
+    async getSleepById(id) {
+        return await http.get(`${API_ENDPOINTS.sleep.getById}/${id}`);
+    },
+
     async addSleepData(sleepData) {
-        // TODO: 后端接口未实现
-        console.warn('睡眠管理接口未实现');
-        return { success: false, message: '后端接口未实现' };
+        return await http.post(API_ENDPOINTS.sleep.add, sleepData);
+    },
+
+    async updateSleepData(id, sleepData) {
+        return await http.post(`${API_ENDPOINTS.sleep.update}/${id}`, sleepData);
+    },
+
+    async deleteSleepData(id) {
+        return await http.delete(`${API_ENDPOINTS.sleep.delete}/${id}`);
     },
     
     // ==================== 健身管理 ====================
-    
-    /**
-     * 获取健身数据
-     * TODO: 后端接口未实现，实体类为空
-     */
+
     async getFitnessData() {
-        // TODO: 后端接口未实现，使用模拟数据
-        console.warn('健身管理接口未实现，使用模拟数据');
-        return this.getMockFitnessData();
+        return await http.get(API_ENDPOINTS.fitness.get);
     },
-    
-    /**
-     * 添加健身数据
-     * TODO: 后端接口未实现
-     */
+
     async addFitnessData(fitnessData) {
-        // TODO: 后端接口未实现
-        console.warn('健身管理接口未实现');
-        return { success: false, message: '后端接口未实现' };
+        return await http.post(API_ENDPOINTS.fitness.add, fitnessData);
+    },
+
+    async updateFitnessData(id, fitnessData) {
+        return await http.post(`${API_ENDPOINTS.fitness.update}/${id}`, fitnessData);
+    },
+
+    async deleteFitnessData(id) {
+        return await http.delete(`${API_ENDPOINTS.fitness.delete}/${id}`);
     },
     
     // ==================== 社交广场 ====================
@@ -548,40 +545,6 @@ const api = {
             console.error('文件上传错误:', error);
             return { success: false, data: null, message: '文件上传失败' };
         }
-    },
-    
-    // ==================== 模拟数据 ====================
-    
-    /**
-     * 获取模拟睡眠数据
-     */
-    getMockSleepData() {
-        return {
-            success: true,
-            data: [
-                { id: 1, date: '2024-04-15', startTime: '22:30', endTime: '06:30', duration: 8, quality: 85, deepSleep: 3.5, remark: '睡眠质量良好' },
-                { id: 2, date: '2024-04-14', startTime: '23:00', endTime: '07:00', duration: 8, quality: 78, deepSleep: 3.0, remark: '中途醒来一次' },
-                { id: 3, date: '2024-04-13', startTime: '00:00', endTime: '08:00', duration: 8, quality: 65, deepSleep: 2.5, remark: '入睡较晚' },
-                { id: 4, date: '2024-04-12', startTime: '22:00', endTime: '06:00', duration: 8, quality: 90, deepSleep: 4.0, remark: '睡眠质量优秀' },
-                { id: 5, date: '2024-04-11', startTime: '23:30', endTime: '06:30', duration: 7, quality: 70, deepSleep: 2.8, remark: '睡眠时间不足' }
-            ]
-        };
-    },
-    
-    /**
-     * 获取模拟健身数据
-     */
-    getMockFitnessData() {
-        return {
-            success: true,
-            data: [
-                { id: 1, date: '2024-04-15', type: '跑步', duration: 45, calories: 350, distance: 5.2, heartRate: 145, remark: '晨跑' },
-                { id: 2, date: '2024-04-14', type: '力量训练', duration: 60, calories: 280, sets: 20, remark: '上肢训练' },
-                { id: 3, date: '2024-04-13', type: '游泳', duration: 50, calories: 400, distance: 1.5, remark: '自由泳' },
-                { id: 4, date: '2024-04-12', type: '瑜伽', duration: 40, calories: 150, remark: '放松训练' },
-                { id: 5, date: '2024-04-11', type: '骑行', duration: 90, calories: 500, distance: 25, remark: '户外骑行' }
-            ]
-        };
     }
 };
 

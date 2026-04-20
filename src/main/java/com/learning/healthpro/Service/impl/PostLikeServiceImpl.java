@@ -32,6 +32,7 @@ public class PostLikeServiceImpl implements PostLikeService {
             return false;
         }
         postLikeMapper.deleteLike(userId, postId);
+        postMapper.reduceLike(postId);
         return true;
     }
 

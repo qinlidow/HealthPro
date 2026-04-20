@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learning.healthpro.mapper.FitnessMapper">
+    <select id="getAllByUserId" resultType="com.learning.healthpro.entity.Fitness">
+        select id, type, duration, heart_rate, calories, date, user_id from fitness where user_id = #{userId} order by date desc
+    </select>
+
+    <select id="getById" resultType="com.learning.healthpro.entity.Fitness">
+        select id, type, duration, heart_rate, calories, date, user_id from fitness where id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into fitness(type, duration, heart_rate, calories, date, user_id)
+        values(#{type}, #{duration}, #{heart_rate}, #{calories}, #{date}, #{user_id})
+    </insert>
+
+    <update id="update">
+        update fitness set type = #{type}, duration = #{duration}, heart_rate = #{heart_rate}, calories = #{calories}, date = #{date}
+        where id = #{id}
+    </update>
+
+    <delete id="delete">
+        delete from fitness where id = #{id}
+    </delete>
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learning.healthpro.mapper.SleepMapper">
+    <select id="getAllByUserId" resultType="com.learning.healthpro.entity.Sleep">
+        select id, duration, deep_sleep, light_sleep, rem_sleep, date, user_id from sleep where user_id = #{userId} order by date desc
+    </select>
+
+    <select id="getById" resultType="com.learning.healthpro.entity.Sleep">
+        select id, duration, deep_sleep, light_sleep, rem_sleep, date, user_id from sleep where id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into sleep(duration, deep_sleep, light_sleep, rem_sleep, date, user_id)
+        values(#{duration}, #{deep_sleep}, #{light_sleep}, #{rem_sleep}, #{date}, #{user_id})
+    </insert>
+
+    <update id="update">
+        update sleep set duration = #{duration}, deep_sleep = #{deep_sleep}, light_sleep = #{light_sleep}, rem_sleep = #{rem_sleep}, date = #{date}
+        where id = #{id}
+    </update>
+
+    <delete id="delete">
+        delete from sleep where id = #{id}
+    </delete>
+</mapper>

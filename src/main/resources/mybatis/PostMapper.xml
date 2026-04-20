@@ -53,6 +53,10 @@
         update post set likes = likes + 1 where id = #{id}
     </update>
 
+    <update id="reduceLike">
+        update post set likes = GREATEST(likes - 1, 0) where id = #{id}
+    </update>
+
     <update id="addComment">
         update post set comments = comments + 1 where id = #{id}
     </update>

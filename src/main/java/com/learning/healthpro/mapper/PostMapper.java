@@ -26,6 +26,8 @@ public interface PostMapper {
 
     int addLike(int id);
 
+    int reduceLike(int id);
+
     int addComment(int id);
 
     int updateStatus(@Param("id") int id, @Param("status") int status);

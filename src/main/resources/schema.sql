@@ -45,12 +45,10 @@ CREATE TABLE IF NOT EXISTS diet (
 -- 睡眠记录表
 CREATE TABLE IF NOT EXISTS sleep (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    start_time VARCHAR(255),
-    end_time VARCHAR(255),
     duration FLOAT,
-    quality INT,
     deep_sleep FLOAT,
-    remark VARCHAR(255),
+    light_sleep FLOAT,
+    rem_sleep FLOAT DEFAULT 0,
     date VARCHAR(255),
     user_id INT,
     FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
