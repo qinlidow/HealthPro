@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthPro - 健身管理</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .page-content { padding-top: 60px; padding-bottom: 80px; min-height: 100vh; background: var(--bg-secondary); }
+        .page-header { background: linear-gradient(135deg, #2196F3, #1976D2); padding: 30px 24px; color: white; }
+        .page-header-content { max-width: 1200px; margin: 0 auto; }
+        .page-title { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+        .main-content { max-width: 1200px; margin: -20px auto 0; padding: 0 24px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); text-align: center; }
+        .stat-value { font-size: 32px; font-weight: 600; color: #2196F3; }
+        .stat-label { font-size: 14px; color: #757575; margin-top: 8px; }
+        
+        .chart-section { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 24px; }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .chart-title { font-size: 18px; font-weight: 600; }
+        
+        .records-section { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .records-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        .fitness-card { background: #FAFAFA; border-radius: 12px; padding: 20px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s ease; }
+        .fitness-card:hover { background: #F0F0F0; }
+        .fitness-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .fitness-date { font-weight: 600; color: #2196F3; font-size: 16px; }
+        .fitness-type { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; background: #E3F2FD; color: #1565C0; }
+        .fitness-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .fitness-stat { text-align: center; }
+        .fitness-stat-value { font-size: 20px; font-weight: 600; color: #212121; }
+        .fitness-stat-label { font-size: 12px; color: #9E9E9E; margin-top: 4px; }
+        
+        .suggestion-section { background: linear-gradient(135deg, #E3F2FD, #BBDEFB); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+        .suggestion-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+        .suggestion-item { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+        
+        .prediction-section { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); border: 2px dashed #2196F3; margin-bottom: 24px; }
+        .prediction-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+        .prediction-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+        .prediction-item { text-align: center; padding: 20px; background: #F5F5F5; border-radius: 12px; }
+        .prediction-value { font-size: 32px; font-weight: 600; color: #2196F3; }
+        .prediction-label { font-size: 14px; color: #757575; margin-top: 8px; }
+        
+        .fab { position: fixed; bottom: 90px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #2196F3, #1976D2); color: white; border: none; font-size: 24px; cursor: pointer; box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4); z-index: 100; }
+        .fab:hover { transform: scale(1.1); }
+
+        /* 打卡日历 */
+        .checkin-chart-row { display: flex; gap: 24px; margin-bottom: 24px; }
+        .checkin-section { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); flex: 1; min-width: 0; }
+        .checkin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .checkin-title { font-size: 16px; font-weight: 600; }
+        .checkin-stats { display: flex; gap: 20px; margin-bottom: 10px; }
+        .checkin-stat { display: flex; align-items: center; gap: 6px; }
+        .checkin-stat-value { font-size: 20px; font-weight: 600; color: #4CAF50; }
+        .checkin-stat-label { font-size: 12px; color: #757575; }
+        .checkin-btn { padding: 8px 20px; background: linear-gradient(135deg, #4CAF50, #388E3C); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.3s; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3); }
+        .checkin-btn:hover { transform: scale(1.05); }
+        .checkin-btn:disabled { background: #BDBDBD; box-shadow: none; cursor: default; transform: none; }
+        .checkin-calendar { margin-top: 10px; }
+        .calendar-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .calendar-nav-btn { background: none; border: 1px solid #E0E0E0; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 12px; color: #757575; transition: all 0.2s; }
+        .calendar-nav-btn:hover { border-color: #2196F3; color: #2196F3; }
+        .calendar-month-label { font-size: 14px; font-weight: 600; color: #212121; }
+        .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 2px; }
+        .calendar-weekday { text-align: center; font-size: 11px; color: #9E9E9E; font-weight: 500; padding: 2px 0; }
+        .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+        .calendar-day { aspect-ratio: 1; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #757575; cursor: pointer; transition: all 0.2s; position: relative; }
+        .calendar-day:hover { background: #F5F5F5; }
+        .calendar-day.empty { cursor: default; }
+        .calendar-day.empty:hover { background: transparent; }
+        .calendar-day.checked { background: #4CAF50; color: white; font-weight: 600; }
+        .calendar-day.checked:hover { background: #388E3C; }
+        .calendar-day.today { border: 2px solid #2196F3; }
+        .calendar-day.future { color: #BDBDBD; cursor: default; }
+        .calendar-day.future:hover { background: transparent; }
+        .chart-section-inline { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); flex: 1; min-width: 0; }
+        
+        @media (max-width: 900px) {
+            .checkin-chart-row { flex-direction: column; }
+        }
+        
+        @media (max-width: 900px) {
+            .checkin-chart-row { flex-direction: column; }
+        }
+        
+        @media (max-width: 900px) {
+            .checkin-chart-row { flex-direction: column; }
+        }
+        
+        @media (max-width: 900px) {
+            .checkin-chart-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand"><div class="navbar-brand-icon">💚</div><span>HealthPro</span></a>
+        <div class="navbar-menu">
+            <a href="index.html" class="navbar-item">首页</a>
+            <a href="body.html" class="navbar-item">身体数据</a>
+            <a href="diet.html" class="navbar-item">饮食记录</a>
+            <a href="sleep.html" class="navbar-item">睡眠管理</a>
+            <a href="fitness.html" class="navbar-item active">健身管理</a>
+            <a href="social.html" class="navbar-item">社交广场</a>
+        </div>
+        <div class="navbar-user" onclick="location.href='user.html'"><div class="avatar" id="userAvatar">U</div><span class="navbar-user-name hide-mobile" id="userName">用户</span></div>
+    </nav>
+    
+    <div class="page-content">
+        <div class="page-header">
+            <div class="page-header-content">
+                <h1 class="page-title">🏃 健身管理</h1>
+                <p>记录运动数据，追踪健身效果</p>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalWorkouts">0</div>
+                    <div class="stat-label">运动次数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalCalories">0</div>
+                    <div class="stat-label">总消耗(kcal)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalDuration">0</div>
+                    <div class="stat-label">总时长(分钟)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgHeartRate">--</div>
+                    <div class="stat-label">平均心率</div>
+                </div>
+            </div>
+            
+            <!-- 打卡日历 + 趋势图 同一行 -->
+            <div class="checkin-chart-row">
+                <!-- 每日打卡 -->
+                <div class="checkin-section">
+                    <div class="checkin-header">
+                        <h3 class="checkin-title">📅 每日打卡</h3>
+                        <button class="checkin-btn" id="checkInBtn" onclick="handleCheckIn()">今日打卡</button>
+                    </div>
+                    <div class="checkin-stats">
+                        <div class="checkin-stat">
+                            <div class="checkin-stat-value" id="checkInCount">0</div>
+                            <div class="checkin-stat-label">已打卡天数</div>
+                        </div>
+                        <div class="checkin-stat">
+                            <div class="checkin-stat-value" id="checkInStreak">0</div>
+                            <div class="checkin-stat-label">连续打卡天数</div>
+                        </div>
+                    </div>
+                    <div class="checkin-calendar">
+                        <div class="calendar-nav">
+                            <button class="calendar-nav-btn" onclick="changeMonth(-1)">◀ 上月</button>
+                            <span class="calendar-month-label" id="calendarMonthLabel"></span>
+                            <button class="calendar-nav-btn" onclick="changeMonth(1)">下月 ▶</button>
+                        </div>
+                        <div class="calendar-weekdays">
+                            <div class="calendar-weekday">一</div>
+                            <div class="calendar-weekday">二</div>
+                            <div class="calendar-weekday">三</div>
+                            <div class="calendar-weekday">四</div>
+                            <div class="calendar-weekday">五</div>
+                            <div class="calendar-weekday">六</div>
+                            <div class="calendar-weekday">日</div>
+                        </div>
+                        <div class="calendar-days" id="calendarDays"></div>
+                    </div>
+                </div>
+                
+                <!-- 运动数据趋势 -->
+                <div class="chart-section-inline">
+                    <div class="chart-header">
+                        <h3 class="chart-title">📊 运动数据趋势</h3>
+                    </div>
+                    <canvas id="fitnessChart" height="250"></canvas>
+                </div>
+            </div>
+            
+            <div class="suggestion-section">
+                <h3 class="suggestion-title">💡 健身建议</h3>
+                <div id="suggestions">
+                    <div class="suggestion-item">
+                        <strong>🎯 运动目标</strong>
+                        <p style="margin-top: 8px; color: #616161;">每周至少进行150分钟中等强度有氧运动，或75分钟高强度运动。</p>
+                    </div>
+                    <div class="suggestion-item">
+                        <strong>💪 力量训练</strong>
+                        <p style="margin-top: 8px; color: #616161;">每周进行2-3次力量训练，注意全身各肌群的均衡发展。</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="prediction-section">
+                <h3 class="prediction-title">🔮 运动预测</h3>
+                <div class="prediction-grid">
+                    <div class="prediction-item">
+                        <div class="prediction-value" id="predictCalories">--</div>
+                        <div class="prediction-label">预测消耗(kcal)</div>
+                    </div>
+                    <div class="prediction-item">
+                        <div class="prediction-value" id="predictDuration">--</div>
+                        <div class="prediction-label">预测时长(分钟)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="records-section">
+                <div class="records-header">
+                    <h3 class="chart-title">📋 运动记录</h3>
+                    <button class="btn btn-primary btn-sm" onclick="showAddModal()">+ 添加记录</button>
+                </div>
+                <div id="recordsList"></div>
+            </div>
+        </div>
+    </div>
+    
+    <button class="fab" onclick="showAddModal()">+</button>
+    
+    <nav class="bottom-nav">
+        <a href="index.html" class="bottom-nav-item"><span class="bottom-nav-icon">🏠</span><span class="bottom-nav-text">首页</span></a>
+        <a href="body.html" class="bottom-nav-item"><span class="bottom-nav-icon">💪</span><span class="bottom-nav-text">身体</span></a>
+        <a href="diet.html" class="bottom-nav-item"><span class="bottom-nav-icon">🍽️</span><span class="bottom-nav-text">饮食</span></a>
+        <a href="fitness.html" class="bottom-nav-item active"><span class="bottom-nav-icon">🏃</span><span class="bottom-nav-text">健身</span></a>
+        <a href="social.html" class="bottom-nav-item"><span class="bottom-nav-icon">👥</span><span class="bottom-nav-text">广场</span></a>
+        <a href="user.html" class="bottom-nav-item"><span class="bottom-nav-icon">👤</span><span class="bottom-nav-text">我的</span></a>
+    </nav>
+    
+    <div class="modal-overlay" id="addModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">添加运动记录</h3>
+                <button class="modal-close" onclick="closeModal('addModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">日期</label>
+                    <input type="date" class="form-input" id="addDate">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">运动类型</label>
+                    <select class="form-select" id="addType">
+                        <option value="跑步">跑步</option>
+                        <option value="游泳">游泳</option>
+                        <option value="骑行">骑行</option>
+                        <option value="力量训练">力量训练</option>
+                        <option value="瑜伽">瑜伽</option>
+                        <option value="篮球">篮球</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                <div class="grid grid-2 gap-16">
+                    <div class="form-group">
+                        <label class="form-label">时长(分钟)</label>
+                        <input type="number" class="form-input" id="addDuration" value="30">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">消耗卡路里</label>
+                        <input type="number" class="form-input" id="addCalories" value="200">
+                    </div>
+                </div>
+                <div class="grid grid-2 gap-16">
+                    <div class="form-group">
+                        <label class="form-label">距离(km)</label>
+                        <input type="number" class="form-input" id="addDistance" step="0.1" placeholder="选填">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">平均心率</label>
+                        <input type="number" class="form-input" id="addHeartRate" placeholder="选填">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">备注</label>
+                    <input type="text" class="form-input" id="addRemark" placeholder="如：晨跑">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('addModal')">取消</button>
+                <button class="btn btn-primary" onclick="saveRecord()">保存</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../js/api.js"></script>
+    <script src="../js/utils.js"></script>
+    <script>
+        if (!http.isAuthenticated()) window.location.href = '../login.html';
+
+        // 加载导航栏用户信息
+        async function loadNavbarUser() {
+            try {
+                const result = await api.getUserInfo();
+                if (result.success && result.data) {
+                    const user = result.data;
+                    document.getElementById('userName').textContent = user.name || '用户';
+                    const avatarEl = document.getElementById('userAvatar');
+                    if (user.avatar) {
+                        avatarEl.innerHTML = `<img src="${API_BASE_URL}${user.avatar}" alt="头像" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+                    } else {
+                        avatarEl.textContent = (user.name || 'U')[0].toUpperCase();
+                    }
+                }
+            } catch (e) {}
+        }
+        loadNavbarUser();
+        
+        // ==================== 打卡日历 ====================
+        let calendarYear, calendarMonth;
+        let checkedDates = new Set();
+        let todayCheckedIn = false;
+        
+        (function initCalendar() {
+            const now = new Date();
+            calendarYear = now.getFullYear();
+            calendarMonth = now.getMonth(); // 0-based
+        })();
+        
+        async function loadCheckInData() {
+            try {
+                const [countResult, streakResult] = await Promise.all([
+                    api.getCheckInCount(),
+                    api.getCheckInStreak()
+                ]);
+                if (countResult.success && countResult.data !== undefined) {
+                    document.getElementById('checkInCount').textContent = countResult.data;
+                }
+                if (streakResult.success && streakResult.data !== undefined) {
+                    document.getElementById('checkInStreak').textContent = streakResult.data;
+                }
+            } catch (e) { console.error('加载打卡统计失败:', e); }
+            
+            // 检查今日是否已打卡
+            const todayStr = formatDateStr(new Date());
+            try {
+                const result = await api.isCheckedIn(todayStr);
+                if (result.success && result.data === true) {
+                    todayCheckedIn = true;
+                    document.getElementById('checkInBtn').textContent = '今日已打卡';
+                    document.getElementById('checkInBtn').disabled = true;
+                } else {
+                    todayCheckedIn = false;
+                    document.getElementById('checkInBtn').textContent = '今日打卡';
+                    document.getElementById('checkInBtn').disabled = false;
+                }
+            } catch (e) { console.error('检查打卡状态失败:', e); }
+            
+            await loadMonthCheckIns();
+        }
+        
+        async function loadMonthCheckIns() {
+            const yearMonth = `${calendarYear}-${String(calendarMonth + 1).padStart(2, '0')}`;
+            try {
+                const result = await api.getCheckInByMonth(yearMonth);
+                if (result.success && result.data) {
+                    checkedDates.clear();
+                    result.data.forEach(item => checkedDates.add(item.date));
+                }
+            } catch (e) {}
+            renderCalendar();
+        }
+        
+        function formatDateStr(date) {
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        }
+        
+        function renderCalendar() {
+            const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+            document.getElementById('calendarMonthLabel').textContent = `${calendarYear}年 ${monthNames[calendarMonth]}`;
+            
+            const container = document.getElementById('calendarDays');
+            const firstDay = new Date(calendarYear, calendarMonth, 1);
+            const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+            // 周一=0, 周日=6
+            let startWeekday = firstDay.getDay() - 1;
+            if (startWeekday < 0) startWeekday = 6;
+            
+            const now = new Date();
+            const todayStr = formatDateStr(now);
+            const todayYear = now.getFullYear();
+            const todayMonth = now.getMonth();
+            const todayDate = now.getDate();
+            
+            let html = '';
+            // 填充空白
+            for (let i = 0; i < startWeekday; i++) {
+                html += '<div class="calendar-day empty"></div>';
+            }
+            // 填充日期
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${calendarYear}-${String(calendarMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isChecked = checkedDates.has(dateStr);
+                const isToday = dateStr === todayStr;
+                const isFuture = (calendarYear > todayYear) || (calendarYear === todayYear && calendarMonth > todayMonth) || (calendarYear === todayYear && calendarMonth === todayMonth && day > todayDate);
+                
+                let classes = 'calendar-day';
+                if (isChecked) classes += ' checked';
+                if (isToday) classes += ' today';
+                if (isFuture) classes += ' future';
+                
+                html += `<div class="${classes}" data-date="${dateStr}" onclick="handleDayClick('${dateStr}')">${day}</div>`;
+            }
+            container.innerHTML = html;
+        }
+        
+        function changeMonth(delta) {
+            calendarMonth += delta;
+            if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; }
+            if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; }
+            loadMonthCheckIns();
+        }
+        
+        async function handleCheckIn() {
+            const todayStr = formatDateStr(new Date());
+            const result = await api.doCheckIn(todayStr);
+            if (result.success) {
+                todayCheckedIn = true;
+                checkedDates.add(todayStr);
+                document.getElementById('checkInBtn').textContent = '今日已打卡';
+                document.getElementById('checkInBtn').disabled = true;
+                utils.showToast('打卡成功！', 'success');
+                // 刷新统计
+                const [countResult, streakResult] = await Promise.all([
+                    api.getCheckInCount(),
+                    api.getCheckInStreak()
+                ]);
+                if (countResult.success && countResult.data !== undefined) {
+                    document.getElementById('checkInCount').textContent = countResult.data;
+                }
+                if (streakResult.success && streakResult.data !== undefined) {
+                    document.getElementById('checkInStreak').textContent = streakResult.data;
+                }
+                renderCalendar();
+            } else {
+                utils.showToast(result.message || '打卡失败', 'error');
+            }
+        }
+        
+        async function handleDayClick(dateStr) {
+            // 已打卡的日期不重复操作
+            if (checkedDates.has(dateStr)) return;
+            // 只能打卡当天
+            const todayStr = formatDateStr(new Date());
+            if (dateStr !== todayStr) return;
+            // 调用打卡API
+            const result = await api.doCheckIn(dateStr);
+            if (result.success) {
+                checkedDates.add(dateStr);
+                if (dateStr === todayStr) {
+                    todayCheckedIn = true;
+                    document.getElementById('checkInBtn').textContent = '今日已打卡';
+                    document.getElementById('checkInBtn').disabled = true;
+                }
+                utils.showToast('打卡成功！', 'success');
+                const [countResult, streakResult] = await Promise.all([
+                    api.getCheckInCount(),
+                    api.getCheckInStreak()
+                ]);
+                if (countResult.success && countResult.data !== undefined) {
+                    document.getElementById('checkInCount').textContent = countResult.data;
+                }
+                if (streakResult.success && streakResult.data !== undefined) {
+                    document.getElementById('checkInStreak').textContent = streakResult.data;
+                }
+                renderCalendar();
+            } else {
+                utils.showToast(result.message || '打卡失败', 'error');
+            }
+        }
+        
+        loadCheckInData();
+        
+        // ==================== 健身数据 ====================
+        let fitnessData = [];
+        document.getElementById('addDate').value = utils.formatDate(new Date());
+        
+        async function loadData() {
+            const result = await api.getFitnessData();
+            if (result.success && result.data) {
+                fitnessData = result.data.sort((a, b) => new Date(a.date) - new Date(b.date));
+                updateStats();
+                updateChart();
+                updateRecords();
+                updatePredictions();
+            }
+        }
+        
+        function updateStats() {
+            if (fitnessData.length === 0) return;
+            const totalCalories = fitnessData.reduce((s, d) => s + (d.calories || 0), 0);
+            const totalDuration = fitnessData.reduce((s, d) => s + (d.duration || 0), 0);
+            const heartRates = fitnessData.filter(d => d.heartRate).map(d => d.heartRate);
+            
+            document.getElementById('totalWorkouts').textContent = fitnessData.length;
+            document.getElementById('totalCalories').textContent = totalCalories;
+            document.getElementById('totalDuration').textContent = totalDuration;
+            document.getElementById('avgHeartRate').textContent = heartRates.length > 0 ? Math.round(heartRates.reduce((a, b) => a + b) / heartRates.length) : '--';
+        }
+        
+        function updateChart() {
+            if (fitnessData.length === 0) return;
+            const ctx = document.getElementById('fitnessChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: fitnessData.slice(-7).map(d => d.date.substring(5)),
+                    datasets: [{
+                        label: '消耗卡路里(kcal)',
+                        data: fitnessData.slice(-7).map(d => d.calories),
+                        backgroundColor: 'rgba(33, 150, 243, 0.6)',
+                        borderColor: '#2196F3',
+                        borderWidth: 1
+                    }]
+                },
+                options: { responsive: true }
+            });
+        }
+        
+        function updateRecords() {
+            const container = document.getElementById('recordsList');
+            if (fitnessData.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🏃</div><p>暂无记录</p></div>';
+                return;
+            }
+            container.innerHTML = fitnessData.slice().reverse().map(record => `
+                <div class="fitness-card" onclick="location.href='fitness-detail.html?id=${record.id}'">
+                    <div class="fitness-header">
+                        <div class="fitness-date">📅 ${record.date}</div>
+                        <div class="fitness-type">${record.type}</div>
+                    </div>
+                    <div class="fitness-stats">
+                        <div class="fitness-stat">
+                            <div class="fitness-stat-value">${record.duration}</div>
+                            <div class="fitness-stat-label">时长(分钟)</div>
+                        </div>
+                        <div class="fitness-stat">
+                            <div class="fitness-stat-value">${record.calories}</div>
+                            <div class="fitness-stat-label">消耗(kcal)</div>
+                        </div>
+                        <div class="fitness-stat">
+                            <div class="fitness-stat-value">${record.distance || '--'}</div>
+                            <div class="fitness-stat-label">距离(km)</div>
+                        </div>
+                        <div class="fitness-stat">
+                            <div class="fitness-stat-value">${record.heartRate || '--'}</div>
+                            <div class="fitness-stat-label">心率</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function updatePredictions() {
+            if (fitnessData.length < 2) return;
+            const calories = fitnessData.map(d => d.calories);
+            const prediction = utils.predictLinear(calories, 7);
+            if (prediction) {
+                document.getElementById('predictCalories').textContent = Math.round(prediction.value);
+            }
+            const durations = fitnessData.map(d => d.duration);
+            const durationPred = utils.predictLinear(durations, 7);
+            if (durationPred) {
+                document.getElementById('predictDuration').textContent = Math.round(durationPred.value);
+            }
+        }
+        
+        function showAddModal() { document.getElementById('addModal').classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        
+        async function saveRecord() {
+            const data = {
+                date: document.getElementById('addDate').value,
+                type: document.getElementById('addType').value,
+                duration: parseInt(document.getElementById('addDuration').value),
+                calories: parseInt(document.getElementById('addCalories').value),
+                distance: parseFloat(document.getElementById('addDistance').value) || null,
+                heartRate: parseInt(document.getElementById('addHeartRate').value) || null,
+                remark: document.getElementById('addRemark').value
+            };
+            
+            // TODO: 后端健身管理接口未实现
+            utils.showToast('后端接口未实现，使用模拟数据', 'warning');
+            closeModal('addModal');
+            fitnessData.push({ ...data, id: fitnessData.length + 1 });
+            updateStats();
+            updateChart();
+            updateRecords();
+            updatePredictions();
+        }
+        
+        loadData();
+    </script>
+</body>
+</html>

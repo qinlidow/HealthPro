@@ -1,9 +1,21 @@
 Spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/healthpro?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/healthpro?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-test-query: SELECT 1
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 20MB
 
 mybatis:
   mapper-locations: classpath:mybatis/*.xml
@@ -12,3 +24,6 @@ mybatis:
 jwt:
   secret: HealthPro2026SecretKeyForJwtTokenGeneration
   expiration: 86400000
+
+file:
+  upload-dir: uploads

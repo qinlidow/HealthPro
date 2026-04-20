@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthPro - 睡眠管理</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .page-content { padding-top: 60px; padding-bottom: 80px; min-height: 100vh; background: var(--bg-secondary); }
+        .page-header { background: linear-gradient(135deg, #9C27B0, #7B1FA2); padding: 30px 24px; color: white; }
+        .page-header-content { max-width: 1200px; margin: 0 auto; }
+        .page-title { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+        .main-content { max-width: 1200px; margin: -20px auto 0; padding: 0 24px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); text-align: center; }
+        .stat-value { font-size: 32px; font-weight: 600; color: #9C27B0; }
+        .stat-label { font-size: 14px; color: #757575; margin-top: 8px; }
+        
+        .chart-section { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 24px; }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .chart-title { font-size: 18px; font-weight: 600; }
+        
+        .records-section { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .records-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        .sleep-card { background: #FAFAFA; border-radius: 12px; padding: 20px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s ease; }
+        .sleep-card:hover { background: #F0F0F0; }
+        .sleep-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .sleep-date { font-weight: 600; color: #9C27B0; font-size: 16px; }
+        .sleep-quality { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+        .sleep-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .sleep-stat { text-align: center; }
+        .sleep-stat-value { font-size: 20px; font-weight: 600; color: #212121; }
+        .sleep-stat-label { font-size: 12px; color: #9E9E9E; margin-top: 4px; }
+        
+        .suggestion-section { background: linear-gradient(135deg, #F3E5F5, #E1BEE7); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+        .suggestion-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+        .suggestion-item { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+        
+        .prediction-section { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); border: 2px dashed #9C27B0; margin-bottom: 24px; }
+        .prediction-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+        .prediction-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+        .prediction-item { text-align: center; padding: 20px; background: #F5F5F5; border-radius: 12px; }
+        .prediction-value { font-size: 32px; font-weight: 600; color: #9C27B0; }
+        .prediction-label { font-size: 14px; color: #757575; margin-top: 8px; }
+        
+        .fab { position: fixed; bottom: 90px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #9C27B0, #7B1FA2); color: white; border: none; font-size: 24px; cursor: pointer; box-shadow: 0 4px 12px rgba(156, 39, 176, 0.4); z-index: 100; }
+        .fab:hover { transform: scale(1.1); }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand"><div class="navbar-brand-icon">💚</div><span>HealthPro</span></a>
+        <div class="navbar-menu">
+            <a href="index.html" class="navbar-item">首页</a>
+            <a href="body.html" class="navbar-item">身体数据</a>
+            <a href="diet.html" class="navbar-item">饮食记录</a>
+            <a href="sleep.html" class="navbar-item active">睡眠管理</a>
+            <a href="fitness.html" class="navbar-item">健身管理</a>
+            <a href="social.html" class="navbar-item">社交广场</a>
+        </div>
+        <div class="navbar-user" onclick="location.href='user.html'"><div class="avatar" id="userAvatar">U</div><span class="navbar-user-name hide-mobile" id="userName">用户</span></div>
+    </nav>
+    
+    <div class="page-content">
+        <div class="page-header">
+            <div class="page-header-content">
+                <h1 class="page-title">😴 睡眠管理</h1>
+                <p>监测睡眠质量，改善睡眠习惯</p>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="avgDuration">--</div>
+                    <div class="stat-label">平均时长(小时)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgQuality">--</div>
+                    <div class="stat-label">平均质量(%)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgDeepSleep">--</div>
+                    <div class="stat-label">平均深睡(小时)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalRecords">0</div>
+                    <div class="stat-label">记录天数</div>
+                </div>
+            </div>
+            
+            <div class="chart-section">
+                <div class="chart-header">
+                    <h3 class="chart-title">📊 睡眠趋势</h3>
+                </div>
+                <canvas id="sleepChart" height="250"></canvas>
+            </div>
+            
+            <div class="suggestion-section">
+                <h3 class="suggestion-title">💡 睡眠建议</h3>
+                <div id="suggestions">
+                    <div class="suggestion-item">
+                        <strong>🌙 规律作息</strong>
+                        <p style="margin-top: 8px; color: #616161;">建议每天固定时间入睡和起床，即使在周末也要保持规律。</p>
+                    </div>
+                    <div class="suggestion-item">
+                        <strong>📵 睡前准备</strong>
+                        <p style="margin-top: 8px; color: #616161;">睡前1小时避免使用电子设备，可以阅读、听轻音乐或冥想放松。</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="prediction-section">
+                <h3 class="prediction-title">🔮 睡眠预测</h3>
+                <div class="prediction-grid">
+                    <div class="prediction-item">
+                        <div class="prediction-value" id="predictDuration">--</div>
+                        <div class="prediction-label">预测时长(小时)</div>
+                    </div>
+                    <div class="prediction-item">
+                        <div class="prediction-value" id="predictQuality">--</div>
+                        <div class="prediction-label">预测质量(%)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="records-section">
+                <div class="records-header">
+                    <h3 class="chart-title">📋 睡眠记录</h3>
+                    <button class="btn btn-primary btn-sm" onclick="showAddModal()">+ 添加记录</button>
+                </div>
+                <div id="recordsList"></div>
+            </div>
+        </div>
+    </div>
+    
+    <button class="fab" onclick="showAddModal()">+</button>
+    
+    <nav class="bottom-nav">
+        <a href="index.html" class="bottom-nav-item"><span class="bottom-nav-icon">🏠</span><span class="bottom-nav-text">首页</span></a>
+        <a href="body.html" class="bottom-nav-item"><span class="bottom-nav-icon">💪</span><span class="bottom-nav-text">身体</span></a>
+        <a href="diet.html" class="bottom-nav-item"><span class="bottom-nav-icon">🍽️</span><span class="bottom-nav-text">饮食</span></a>
+        <a href="fitness.html" class="bottom-nav-item"><span class="bottom-nav-icon">🏃</span><span class="bottom-nav-text">健身</span></a>
+        <a href="social.html" class="bottom-nav-item"><span class="bottom-nav-icon">👥</span><span class="bottom-nav-text">广场</span></a>
+        <a href="user.html" class="bottom-nav-item"><span class="bottom-nav-icon">👤</span><span class="bottom-nav-text">我的</span></a>
+    </nav>
+    
+    <div class="modal-overlay" id="addModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">添加睡眠记录</h3>
+                <button class="modal-close" onclick="closeModal('addModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">日期</label>
+                    <input type="date" class="form-input" id="addDate">
+                </div>
+                <div class="grid grid-2 gap-16">
+                    <div class="form-group">
+                        <label class="form-label">入睡时间</label>
+                        <input type="time" class="form-input" id="addStartTime" value="22:00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">起床时间</label>
+                        <input type="time" class="form-input" id="addEndTime" value="06:00">
+                    </div>
+                </div>
+                <div class="grid grid-2 gap-16">
+                    <div class="form-group">
+                        <label class="form-label">睡眠质量(%)</label>
+                        <input type="number" class="form-input" id="addQuality" min="0" max="100" value="80">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">深度睡眠(小时)</label>
+                        <input type="number" class="form-input" id="addDeepSleep" step="0.1" value="3">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">备注</label>
+                    <input type="text" class="form-input" id="addRemark" placeholder="如：睡眠质量良好">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('addModal')">取消</button>
+                <button class="btn btn-primary" onclick="saveRecord()">保存</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../js/api.js"></script>
+    <script src="../js/utils.js"></script>
+    <script>
+        if (!http.isAuthenticated()) window.location.href = '../login.html';
+        
+        // 加载导航栏用户信息
+        async function loadNavbarUser() {
+            try {
+                const result = await api.getUserInfo();
+                if (result.success && result.data) {
+                    const user = result.data;
+                    document.getElementById('userName').textContent = user.name || '用户';
+                    const avatarEl = document.getElementById('userAvatar');
+                    if (user.avatar) {
+                        avatarEl.innerHTML = `<img src="${API_BASE_URL}${user.avatar}" alt="头像" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+                    } else {
+                        avatarEl.textContent = (user.name || 'U')[0].toUpperCase();
+                    }
+                }
+            } catch (e) {}
+        }
+        loadNavbarUser();
+        
+        let sleepData = [];
+        document.getElementById('addDate').value = utils.formatDate(new Date());
+        
+        async function loadData() {
+            const result = await api.getSleepData();
+            if (result.success && result.data) {
+                sleepData = result.data.sort((a, b) => new Date(a.date) - new Date(b.date));
+                updateStats();
+                updateChart();
+                updateRecords();
+                updatePredictions();
+            }
+        }
+        
+        function updateStats() {
+            if (sleepData.length === 0) return;
+            const avgDuration = sleepData.reduce((s, d) => s + d.duration, 0) / sleepData.length;
+            const avgQuality = sleepData.reduce((s, d) => s + d.quality, 0) / sleepData.length;
+            const avgDeep = sleepData.reduce((s, d) => s + d.deepSleep, 0) / sleepData.length;
+            
+            document.getElementById('avgDuration').textContent = avgDuration.toFixed(1);
+            document.getElementById('avgQuality').textContent = Math.round(avgQuality);
+            document.getElementById('avgDeepSleep').textContent = avgDeep.toFixed(1);
+            document.getElementById('totalRecords').textContent = sleepData.length;
+        }
+        
+        function updateChart() {
+            if (sleepData.length === 0) return;
+            const ctx = document.getElementById('sleepChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: sleepData.slice(-7).map(d => d.date.substring(5)),
+                    datasets: [
+                        {
+                            label: '睡眠时长(小时)',
+                            data: sleepData.slice(-7).map(d => d.duration),
+                            borderColor: '#9C27B0',
+                            backgroundColor: 'rgba(156, 39, 176, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: '深度睡眠(小时)',
+                            data: sleepData.slice(-7).map(d => d.deepSleep),
+                            borderColor: '#7B1FA2',
+                            backgroundColor: 'rgba(123, 31, 162, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: { responsive: true }
+            });
+        }
+        
+        function updateRecords() {
+            const container = document.getElementById('recordsList');
+            if (sleepData.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">😴</div><p>暂无记录</p></div>';
+                return;
+            }
+            container.innerHTML = sleepData.slice().reverse().map(record => {
+                const quality = utils.getSleepQuality(record.quality);
+                return `
+                <div class="sleep-card" onclick="location.href='sleep-detail.html?id=${record.id}'">
+                    <div class="sleep-header">
+                        <div class="sleep-date">📅 ${record.date}</div>
+                        <div class="sleep-quality" style="background: ${quality.color}20; color: ${quality.color};">${quality.emoji} ${quality.status}</div>
+                    </div>
+                    <div class="sleep-stats">
+                        <div class="sleep-stat">
+                            <div class="sleep-stat-value">${record.duration}h</div>
+                            <div class="sleep-stat-label">睡眠时长</div>
+                        </div>
+                        <div class="sleep-stat">
+                            <div class="sleep-stat-value">${record.startTime}</div>
+                            <div class="sleep-stat-label">入睡时间</div>
+                        </div>
+                        <div class="sleep-stat">
+                            <div class="sleep-stat-value">${record.endTime}</div>
+                            <div class="sleep-stat-label">起床时间</div>
+                        </div>
+                        <div class="sleep-stat">
+                            <div class="sleep-stat-value">${record.deepSleep}h</div>
+                            <div class="sleep-stat-label">深度睡眠</div>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+        }
+        
+        function updatePredictions() {
+            if (sleepData.length < 2) return;
+            const durations = sleepData.map(d => d.duration);
+            const prediction = utils.predictLinear(durations, 7);
+            if (prediction) {
+                document.getElementById('predictDuration').textContent = prediction.value;
+            }
+            const qualities = sleepData.map(d => d.quality);
+            const qualityPred = utils.predictLinear(qualities, 7);
+            if (qualityPred) {
+                document.getElementById('predictQuality').textContent = Math.round(qualityPred.value);
+            }
+        }
+        
+        function showAddModal() { document.getElementById('addModal').classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        
+        async function saveRecord() {
+            const startTime = document.getElementById('addStartTime').value;
+            const endTime = document.getElementById('addEndTime').value;
+            const startHour = parseInt(startTime.split(':')[0]);
+            const endHour = parseInt(endTime.split(':')[0]);
+            let duration = endHour - startHour;
+            if (duration < 0) duration += 24;
+            
+            const data = {
+                date: document.getElementById('addDate').value,
+                startTime: startTime,
+                endTime: endTime,
+                duration: duration,
+                quality: parseInt(document.getElementById('addQuality').value),
+                deepSleep: parseFloat(document.getElementById('addDeepSleep').value),
+                remark: document.getElementById('addRemark').value
+            };
+            
+            // TODO: 后端睡眠管理接口未实现
+            utils.showToast('后端接口未实现，使用模拟数据', 'warning');
+            closeModal('addModal');
+            sleepData.push({ ...data, id: sleepData.length + 1 });
+            updateStats();
+            updateChart();
+            updateRecords();
+            updatePredictions();
+        }
+        
+        loadData();
+    </script>
+</body>
+</html>

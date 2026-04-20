@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learning.healthpro.mapper.FollowMapper">
+    <insert id="insertFollow" useGeneratedKeys="true" keyProperty="id">
+        insert into follow(follower_id, following_id, date)
+        values(#{follower_id}, #{following_id}, #{date})
+    </insert>
+
+    <delete id="deleteFollow">
+        delete from follow where follower_id = #{followerId} and following_id = #{followingId}
+    </delete>
+
+    <select id="getFollow" resultType="com.learning.healthpro.entity.Follow">
+        select id, follower_id, following_id, date from follow where follower_id = #{followerId} and following_id = #{followingId}
+    </select>
+
+    <select id="getFollowingList" resultType="com.learning.healthpro.entity.Follow">
+        select id, follower_id, following_id, date from follow where follower_id = #{followerId} order by id desc
+    </select>
+
+    <select id="getFollowerList" resultType="com.learning.healthpro.entity.Follow">
+        select id, follower_id, following_id, date from follow where following_id = #{followingId} order by id desc
+    </select>
+
+    <select id="getFollowingCount" resultType="int">
+        select count(*) from follow where follower_id = #{followerId}
+    </select>
+
+    <select id="getFollowerCount" resultType="int">
+        select count(*) from follow where following_id = #{followingId}
+    </select>
+</mapper>

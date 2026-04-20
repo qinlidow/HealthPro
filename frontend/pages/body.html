@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthPro - 身体数据</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .page-content {
+            padding-top: 60px;
+            padding-bottom: 80px;
+            min-height: 100vh;
+            background: var(--bg-secondary);
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            padding: 30px 24px;
+            color: white;
+        }
+        
+        .page-header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .main-content {
+            max-width: 1200px;
+            margin: -20px auto 0;
+            padding: 0 24px;
+        }
+        
+        /* 数据模块网格 */
+        .data-modules {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .data-module {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .data-module:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        }
+        
+        .module-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .module-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        
+        .module-info {
+            flex: 1;
+        }
+        
+        .module-label {
+            font-size: 14px;
+            color: #757575;
+            margin-bottom: 2px;
+        }
+        
+        .module-value-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+        
+        .module-value {
+            font-size: 26px;
+            font-weight: 700;
+            color: #212121;
+            line-height: 1.2;
+        }
+        
+        .module-unit {
+            font-size: 13px;
+            color: #9E9E9E;
+        }
+        
+        .module-status {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .module-chart-wrap {
+            margin-top: 12px;
+            position: relative;
+            height: 120px;
+        }
+        
+        .module-chart-wrap canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        .module-no-data {
+            text-align: center;
+            color: #BDBDBD;
+            font-size: 13px;
+            padding: 30px 0 10px;
+        }
+        
+        /* 历史记录 */
+        .records-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .records-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .records-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .record-item {
+            padding: 16px 20px;
+            border-radius: 12px;
+            background: #FAFAFA;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .record-item:hover {
+            background: #F0F0F0;
+        }
+        
+        .record-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .record-date-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .record-date {
+            font-weight: 600;
+            color: #4CAF50;
+            font-size: 15px;
+        }
+        
+        .record-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .record-btn {
+            padding: 6px 10px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .record-btn:hover {
+            background: #E0E0E0;
+        }
+        
+        .record-text-data {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 16px;
+            font-size: 14px;
+            color: #424242;
+            line-height: 1.8;
+        }
+        
+        .record-text-data .data-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .record-text-data .data-tag .tag-label {
+            color: #9E9E9E;
+            font-size: 13px;
+        }
+        
+        .record-text-data .data-tag .tag-value {
+            font-weight: 600;
+            color: #212121;
+        }
+        
+        .fab {
+            position: fixed;
+            bottom: 90px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .fab:hover {
+            transform: scale(1.1);
+        }
+        
+        .form-hint {
+            font-size: 12px;
+            color: #9E9E9E;
+            font-weight: normal;
+        }
+        
+        .form-input.input-warning {
+            border-color: #FF9800;
+            background-color: #FFF8E1;
+        }
+        
+        .form-input.input-error {
+            border-color: #F44336;
+            background-color: #FFEBEE;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <div class="navbar-brand-icon">💚</div>
+            <span>HealthPro</span>
+        </a>
+        <div class="navbar-menu">
+            <a href="index.html" class="navbar-item">首页</a>
+            <a href="body.html" class="navbar-item active">身体数据</a>
+            <a href="diet.html" class="navbar-item">饮食记录</a>
+            <a href="sleep.html" class="navbar-item">睡眠管理</a>
+            <a href="fitness.html" class="navbar-item">健身管理</a>
+            <a href="social.html" class="navbar-item">社交广场</a>
+        </div>
+        <div class="navbar-user" onclick="location.href='user.html'">
+            <div class="avatar" id="userAvatar">U</div>
+            <span class="navbar-user-name hide-mobile" id="userName">用户</span>
+        </div>
+    </nav>
+    
+    <!-- 页面内容 -->
+    <div class="page-content">
+        <div class="page-header">
+            <div class="page-header-content">
+                <h1 class="page-title">💪 身体数据</h1>
+                <p>记录和追踪您的身体健康指标</p>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <!-- 数据模块区域 -->
+            <div class="data-modules">
+                <!-- 体重模块 -->
+                <div class="data-module" id="moduleWeight">
+                    <div class="module-header">
+                        <div class="module-icon" style="background: #E8F5E9;">⚖️</div>
+                        <div class="module-info">
+                            <div class="module-label">体重</div>
+                            <div class="module-value-row">
+                                <span class="module-value" id="currentWeight">--</span>
+                                <span class="module-unit">kg</span>
+                                <span class="module-status" id="weightStatus" style="background: #E8F5E9; color: #2E7D32;">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="module-chart-wrap"><canvas id="chartWeight"></canvas></div>
+                </div>
+
+                <!-- BMI模块 -->
+                <div class="data-module" id="moduleBMI">
+                    <div class="module-header">
+                        <div class="module-icon" style="background: #E3F2FD;">📊</div>
+                        <div class="module-info">
+                            <div class="module-label">BMI</div>
+                            <div class="module-value-row">
+                                <span class="module-value" id="currentBMI">--</span>
+                                <span class="module-status" id="bmiStatus" style="background: #E3F2FD; color: #1565C0;">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="module-chart-wrap"><canvas id="chartBMI"></canvas></div>
+                </div>
+
+                <!-- 血压模块 -->
+                <div class="data-module" id="modulePressure">
+                    <div class="module-header">
+                        <div class="module-icon" style="background: #FFF3E0;">❤️</div>
+                        <div class="module-info">
+                            <div class="module-label">血压</div>
+                            <div class="module-value-row">
+                                <span class="module-value" id="currentPressure">--/--</span>
+                                <span class="module-unit">mmHg</span>
+                                <span class="module-status" id="pressureStatus" style="background: #FFF3E0; color: #E65100;">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="module-chart-wrap"><canvas id="chartPressure"></canvas></div>
+                </div>
+
+                <!-- 血糖模块 -->
+                <div class="data-module" id="moduleSugar">
+                    <div class="module-header">
+                        <div class="module-icon" style="background: #F3E5F5;">🩸</div>
+                        <div class="module-info">
+                            <div class="module-label">血糖</div>
+                            <div class="module-value-row">
+                                <span class="module-value" id="currentSugar">--</span>
+                                <span class="module-unit">mmol/L</span>
+                                <span class="module-status" id="sugarStatus" style="background: #F3E5F5; color: #7B1FA2;">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="module-chart-wrap"><canvas id="chartSugar"></canvas></div>
+                </div>
+
+                <!-- 体脂率模块 -->
+                <div class="data-module" id="moduleFatPre">
+                    <div class="module-header">
+                        <div class="module-icon" style="background: #FBE9E7;">🔥</div>
+                        <div class="module-info">
+                            <div class="module-label">体脂率</div>
+                            <div class="module-value-row">
+                                <span class="module-value" id="currentFatPre">--</span>
+                                <span class="module-unit">%</span>
+                                <span class="module-status" id="fatPreStatus" style="background: #FBE9E7; color: #D84315;">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="module-chart-wrap"><canvas id="chartFatPre"></canvas></div>
+                </div>
+            </div>
+
+            <!-- 历史记录 -->
+            <div class="records-section">
+                <div class="records-header">
+                    <h3 class="records-title">📋 历史记录</h3>
+                    <button class="btn btn-primary btn-sm" onclick="showAddModal()">+ 添加记录</button>
+                </div>
+                <div id="recordsList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📝</div>
+                        <p>暂无记录，点击右下角按钮添加</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加记录按钮 -->
+    <button class="fab" onclick="showAddModal()">+</button>
+    
+    <!-- 底部导航栏 -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">🏠</span>
+            <span class="bottom-nav-text">首页</span>
+        </a>
+        <a href="body.html" class="bottom-nav-item active">
+            <span class="bottom-nav-icon">💪</span>
+            <span class="bottom-nav-text">身体</span>
+        </a>
+        <a href="diet.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">🍽️</span>
+            <span class="bottom-nav-text">饮食</span>
+        </a>
+        <a href="fitness.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">🏃</span>
+            <span class="bottom-nav-text">健身</span>
+        </a>
+        <a href="social.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">👥</span>
+            <span class="bottom-nav-text">广场</span>
+        </a>
+        <a href="user.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">👤</span>
+            <span class="bottom-nav-text">我的</span>
+        </a>
+    </nav>
+    
+    <!-- 添加记录模态框 -->
+    <div class="modal-overlay" id="addModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">添加身体数据</h3>
+                <button class="modal-close" onclick="closeModal('addModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">日期</label>
+                    <input type="date" class="form-input" id="addDate">
+                </div>
+                <div class="grid grid-2 gap-16">
+                    <div class="form-group">
+                        <label class="form-label">身高 (cm) <span class="form-hint">正常范围：100~250</span></label>
+                        <input type="number" class="form-input" id="addHeight" step="0.1" min="100" max="250" placeholder="100~250，如：170">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">体重 (kg) <span class="form-hint">正常范围：20~300</span></label>
+                        <input type="number" class="form-input" id="addWeight" step="0.1" min="20" max="300" placeholder="20~300，如：65">
+                    </div>
+                </div>
+                <div class="grid grid-2 gap-16">
+                    <div class="form-group">
+                        <label class="form-label">收缩压 (mmHg) <span class="form-hint">正常：90~140</span></label>
+                        <input type="number" class="form-input" id="addPressureH" min="60" max="260" placeholder="60~260，如：120">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">舒张压 (mmHg) <span class="form-hint">正常：60~90</span></label>
+                        <input type="number" class="form-input" id="addPressureL" min="40" max="160" placeholder="40~160，如：80">
+                    </div>
+                </div>
+                <div class="grid grid-2 gap-16">
+                    <div class="form-group">
+                        <label class="form-label">血糖 (mmol/L) <span class="form-hint">空腹正常：3.9~6.1</span></label>
+                        <input type="number" class="form-input" id="addSugar" step="0.1" min="1" max="30" placeholder="1~30，如：5.5">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">体脂率 (%) <span class="form-hint">男：15~25 女：20~30</span></label>
+                        <input type="number" class="form-input" id="addFatPre" step="0.1" min="3" max="60" placeholder="3~60，如：20">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('addModal')">取消</button>
+                <button class="btn btn-primary" onclick="saveRecord()">保存</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../js/api.js"></script>
+    <script src="../js/utils.js"></script>
+    <script>
+        // 检查登录状态
+        if (!http.isAuthenticated()) {
+            window.location.href = '../login.html';
+        }
+        
+        // 加载导航栏用户信息
+        async function loadNavbarUser() {
+            try {
+                const result = await api.getUserInfo();
+                if (result.success && result.data) {
+                    const user = result.data;
+                    document.getElementById('userName').textContent = user.name || '用户';
+                    const avatarEl = document.getElementById('userAvatar');
+                    if (user.avatar) {
+                        avatarEl.innerHTML = `<img src="${API_BASE_URL}${user.avatar}" alt="头像" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+                    } else {
+                        avatarEl.textContent = (user.name || 'U')[0].toUpperCase();
+                    }
+                }
+            } catch (e) {}
+        }
+        loadNavbarUser();
+        
+        let bodyData = [];
+        // 各模块图表实例
+        const moduleCharts = {
+            weight: null,
+            bmi: null,
+            pressure: null,
+            sugar: null,
+            fatPre: null
+        };
+        
+        // 设置默认日期
+        document.getElementById('addDate').value = utils.formatDate(new Date());
+        
+        // 加载数据
+        async function loadData() {
+            try {
+                const result = await api.getBodyData();
+                if (result.success && result.data) {
+                    bodyData = result.data.sort((a, b) => new Date(a.date) - new Date(b.date));
+                    updateOverview();
+                    updateModuleCharts();
+                    updateRecords();
+                } else if (!result.success) {
+                    utils.showToast(result.message || '加载数据失败，请检查后端服务', 'error');
+                }
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                utils.showToast('网络请求失败，请检查后端服务是否启动', 'error');
+            }
+        }
+        
+        // 更新概览数值
+        function updateOverview() {
+            if (bodyData.length === 0) return;
+            
+            const latest = bodyData[bodyData.length - 1];
+            
+            // 体重
+            if (latest.weight) {
+                document.getElementById('currentWeight').textContent = latest.weight;
+                // 体重状态：与上次比较
+                if (bodyData.length >= 2) {
+                    const prev = bodyData[bodyData.length - 2];
+                    const diff = latest.weight - (prev.weight || latest.weight);
+                    const statusEl = document.getElementById('weightStatus');
+                    if (diff > 0) {
+                        statusEl.textContent = '+' + diff.toFixed(1);
+                        statusEl.style.background = '#FFEBEE';
+                        statusEl.style.color = '#C62828';
+                    } else if (diff < 0) {
+                        statusEl.textContent = diff.toFixed(1);
+                        statusEl.style.background = '#E8F5E9';
+                        statusEl.style.color = '#2E7D32';
+                    } else {
+                        statusEl.textContent = '持平';
+                        statusEl.style.background = '#E8F5E9';
+                        statusEl.style.color = '#2E7D32';
+                    }
+                }
+            }
+            
+            // BMI
+            if (latest.height && latest.weight) {
+                const bmi = utils.calculateBMI(latest.weight, latest.height);
+                document.getElementById('currentBMI').textContent = bmi;
+                const bmiStatus = utils.getBMIStatus(bmi);
+                const statusEl = document.getElementById('bmiStatus');
+                statusEl.textContent = bmiStatus.status;
+            }
+            
+            // 血压
+            if (latest.pressure_h && latest.pressure_l) {
+                document.getElementById('currentPressure').textContent = `${latest.pressure_h}/${latest.pressure_l}`;
+                const pressureStatus = utils.getBloodPressureStatus(latest.pressure_h, latest.pressure_l);
+                document.getElementById('pressureStatus').textContent = pressureStatus.status;
+            }
+            
+            // 血糖
+            if (latest.sugar) {
+                document.getElementById('currentSugar').textContent = latest.sugar;
+                const sugarStatus = utils.getBloodSugarStatus(latest.sugar);
+                document.getElementById('sugarStatus').textContent = sugarStatus.status;
+            }
+            
+            // 体脂率
+            if (latest.fat_pre) {
+                document.getElementById('currentFatPre').textContent = latest.fat_pre;
+                const statusEl = document.getElementById('fatPreStatus');
+                if (latest.fat_pre >= 10 && latest.fat_pre <= 25) {
+                    statusEl.textContent = '正常';
+                } else if (latest.fat_pre < 10) {
+                    statusEl.textContent = '偏低';
+                    statusEl.style.background = '#E3F2FD';
+                    statusEl.style.color = '#1565C0';
+                } else {
+                    statusEl.textContent = '偏高';
+                    statusEl.style.background = '#FFEBEE';
+                    statusEl.style.color = '#C62828';
+                }
+            }
+        }
+        
+        // 创建模块内小折线图的通用方法
+        function createModuleChart(canvasId, chartKey, labels, datasets, options = {}) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            if (moduleCharts[chartKey]) {
+                moduleCharts[chartKey].destroy();
+            }
+            
+            moduleCharts[chartKey] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: datasets.length > 1,
+                            position: 'top',
+                            labels: { boxWidth: 12, padding: 8, font: { size: 11 } }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            padding: 8,
+                            titleFont: { size: 12 },
+                            bodyFont: { size: 12 }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 10 }, maxRotation: 0 }
+                        },
+                        y: {
+                            beginAtZero: false,
+                            grid: { color: 'rgba(0,0,0,0.06)' },
+                            ticks: { font: { size: 10 }, maxTicksLimit: 5 }
+                        }
+                    },
+                    elements: {
+                        point: { radius: 3, hoverRadius: 5 },
+                        line: { tension: 0.3, borderWidth: 2 }
+                    },
+                    ...options
+                }
+            });
+        }
+        
+        // 更新所有模块图表
+        function updateModuleCharts() {
+            // 取最近30条数据用于趋势展示
+            const range = 30;
+            const chartData = bodyData.slice(-range);
+            
+            if (chartData.length === 0) {
+                // 无数据时显示提示
+                document.querySelectorAll('.module-chart-wrap').forEach(wrap => {
+                    wrap.innerHTML = '<div class="module-no-data">暂无趋势数据</div>';
+                });
+                return;
+            }
+            
+            const labels = chartData.map(d => d.date.substring(5));
+            
+            // 体重折线图
+            const weightData = chartData.map(d => d.weight);
+            if (weightData.some(v => v)) {
+                ensureCanvas('chartWeight', 'moduleWeight');
+                createModuleChart('chartWeight', 'weight', labels, [{
+                    label: '体重',
+                    data: weightData,
+                    borderColor: '#4CAF50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                    fill: true
+                }]);
+            }
+            
+            // BMI折线图
+            const bmiData = chartData.map(d => {
+                if (d.height && d.weight) return utils.calculateBMI(d.weight, d.height);
+                return null;
+            });
+            if (bmiData.some(v => v)) {
+                ensureCanvas('chartBMI', 'moduleBMI');
+                createModuleChart('chartBMI', 'bmi', labels, [{
+                    label: 'BMI',
+                    data: bmiData,
+                    borderColor: '#2196F3',
+                    backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                    fill: true
+                }]);
+            }
+            
+            // 血压折线图（高压+低压两条线）
+            const pressureHData = chartData.map(d => d.pressure_h);
+            const pressureLData = chartData.map(d => d.pressure_l);
+            if (pressureHData.some(v => v) || pressureLData.some(v => v)) {
+                ensureCanvas('chartPressure', 'modulePressure');
+                createModuleChart('chartPressure', 'pressure', labels, [
+                    {
+                        label: '收缩压',
+                        data: pressureHData,
+                        borderColor: '#FF5722',
+                        backgroundColor: 'rgba(255, 87, 34, 0.08)',
+                        fill: false
+                    },
+                    {
+                        label: '舒张压',
+                        data: pressureLData,
+                        borderColor: '#FF9800',
+                        backgroundColor: 'rgba(255, 152, 0, 0.08)',
+                        fill: false
+                    }
+                ]);
+            }
+            
+            // 血糖折线图
+            const sugarData = chartData.map(d => d.sugar);
+            if (sugarData.some(v => v)) {
+                ensureCanvas('chartSugar', 'moduleSugar');
+                createModuleChart('chartSugar', 'sugar', labels, [{
+                    label: '血糖',
+                    data: sugarData,
+                    borderColor: '#9C27B0',
+                    backgroundColor: 'rgba(156, 39, 176, 0.1)',
+                    fill: true
+                }]);
+            }
+            
+            // 体脂率折线图
+            const fatPreData = chartData.map(d => d.fat_pre);
+            if (fatPreData.some(v => v)) {
+                ensureCanvas('chartFatPre', 'moduleFatPre');
+                createModuleChart('chartFatPre', 'fatPre', labels, [{
+                    label: '体脂率',
+                    data: fatPreData,
+                    borderColor: '#FF7043',
+                    backgroundColor: 'rgba(255, 112, 67, 0.1)',
+                    fill: true
+                }]);
+            }
+        }
+        
+        // 确保canvas元素存在（可能被module-no-data替换过）
+        function ensureCanvas(canvasId, moduleId) {
+            const module = document.getElementById(moduleId);
+            const chartWrap = module.querySelector('.module-chart-wrap');
+            const existingCanvas = document.getElementById(canvasId);
+            if (!existingCanvas) {
+                chartWrap.innerHTML = '';
+                const canvas = document.createElement('canvas');
+                canvas.id = canvasId;
+                chartWrap.appendChild(canvas);
+            }
+        }
+        
+        // 更新记录列表 - 每条记录以文字形式显示所有数据项
+        function updateRecords() {
+            const container = document.getElementById('recordsList');
+            
+            if (bodyData.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📝</div>
+                        <p>暂无记录，点击右下角按钮添加</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = bodyData.slice().reverse().map(record => {
+                // 构建每项数据的文字标签
+                const dataTags = [];
+                if (record.height) dataTags.push(`<span class="data-tag"><span class="tag-label">身高</span><span class="tag-value">${record.height}cm</span></span>`);
+                if (record.weight) dataTags.push(`<span class="data-tag"><span class="tag-label">体重</span><span class="tag-value">${record.weight}kg</span></span>`);
+                if (record.height && record.weight) {
+                    const bmi = utils.calculateBMI(record.weight, record.height);
+                    dataTags.push(`<span class="data-tag"><span class="tag-label">BMI</span><span class="tag-value">${bmi}</span></span>`);
+                }
+                if (record.pressure_h && record.pressure_l) dataTags.push(`<span class="data-tag"><span class="tag-label">血压</span><span class="tag-value">${record.pressure_h}/${record.pressure_l}mmHg</span></span>`);
+                if (record.sugar) dataTags.push(`<span class="data-tag"><span class="tag-label">血糖</span><span class="tag-value">${record.sugar}mmol/L</span></span>`);
+                if (record.fat_pre) dataTags.push(`<span class="data-tag"><span class="tag-label">体脂率</span><span class="tag-value">${record.fat_pre}%</span></span>`);
+                
+                return `
+                    <div class="record-item">
+                        <div class="record-date-row">
+                            <span class="record-date">${record.date}</span>
+                            <div class="record-actions">
+                                <button class="record-btn" onclick="deleteRecord(${record.id})" title="删除">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="record-text-data">
+                            ${dataTags.join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 显示添加模态框
+        function showAddModal() {
+            // 清除之前的校验状态
+            document.querySelectorAll('#addModal .form-input').forEach(el => {
+                el.classList.remove('input-warning', 'input-error');
+            });
+            document.getElementById('addModal').classList.add('active');
+        }
+        
+        // 关闭模态框
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        
+        // 保存记录
+        async function saveRecord() {
+            const data = {
+                date: document.getElementById('addDate').value,
+                height: parseFloat(document.getElementById('addHeight').value) || null,
+                weight: parseFloat(document.getElementById('addWeight').value) || null,
+                pressure_h: parseFloat(document.getElementById('addPressureH').value) || null,
+                pressure_l: parseFloat(document.getElementById('addPressureL').value) || null,
+                sugar: parseFloat(document.getElementById('addSugar').value) || null,
+                fat_pre: parseFloat(document.getElementById('addFatPre').value) || null
+            };
+            
+            // 清除之前的校验状态
+            document.querySelectorAll('.form-input').forEach(el => {
+                el.classList.remove('input-warning', 'input-error');
+            });
+            
+            // 日期校验
+            if (!data.date) {
+                utils.showToast('请选择日期', 'error');
+                return;
+            }
+            
+            // 至少填写一项身体数据
+            if (!data.height && !data.weight && !data.pressure_h && !data.pressure_l && !data.sugar && !data.fat_pre) {
+                utils.showToast('请至少填写一项身体数据', 'warning');
+                return;
+            }
+            
+            // 范围校验规则
+            const validations = [
+                { field: 'height', value: data.height, min: 100, max: 250, label: '身高', unit: 'cm' },
+                { field: 'weight', value: data.weight, min: 20, max: 300, label: '体重', unit: 'kg' },
+                { field: 'pressure_h', value: data.pressure_h, min: 60, max: 260, label: '收缩压', unit: 'mmHg' },
+                { field: 'pressure_l', value: data.pressure_l, min: 40, max: 160, label: '舒张压', unit: 'mmHg' },
+                { field: 'sugar', value: data.sugar, min: 1, max: 30, label: '血糖', unit: 'mmol/L' },
+                { field: 'fat_pre', value: data.fat_pre, min: 3, max: 60, label: '体脂率', unit: '%' }
+            ];
+            
+            const fieldIdMap = {
+                height: 'addHeight',
+                weight: 'addWeight',
+                pressure_h: 'addPressureH',
+                pressure_l: 'addPressureL',
+                sugar: 'addSugar',
+                fat_pre: 'addFatPre'
+            };
+            
+            for (const v of validations) {
+                if (v.value !== null) {
+                    const inputEl = document.getElementById(fieldIdMap[v.field]);
+                    if (v.value < v.min || v.value > v.max) {
+                        inputEl.classList.add('input-error');
+                        utils.showToast(`${v.label}应在${v.min}~${v.max}${v.unit}之间`, 'error');
+                        return;
+                    }
+                }
+            }
+            
+            // 血压逻辑校验：收缩压应大于舒张压
+            if (data.pressure_h !== null && data.pressure_l !== null && data.pressure_h <= data.pressure_l) {
+                document.getElementById('addPressureH').classList.add('input-warning');
+                document.getElementById('addPressureL').classList.add('input-warning');
+                utils.showToast('收缩压应大于舒张压', 'warning');
+                return;
+            }
+            
+            // 健康提示（非阻断性）
+            if (data.height && data.weight) {
+                const bmi = utils.calculateBMI(data.weight, data.height);
+                const bmiStatus = utils.getBMIStatus(bmi);
+                if (bmiStatus.status !== '正常') {
+                    utils.showToast(`BMI为${bmi}（${bmiStatus.status}），${bmiStatus.advice}`, 'warning', 4000);
+                }
+            }
+            if (data.pressure_h && data.pressure_l) {
+                const bpStatus = utils.getBloodPressureStatus(data.pressure_h, data.pressure_l);
+                if (bpStatus.status !== '理想' && bpStatus.status !== '正常') {
+                    utils.showToast(`血压${bpStatus.status}，${bpStatus.advice}`, 'warning', 4000);
+                }
+            }
+            if (data.sugar) {
+                const sugarStatus = utils.getBloodSugarStatus(data.sugar);
+                if (sugarStatus.status !== '正常') {
+                    utils.showToast(`血糖${sugarStatus.status}，${sugarStatus.advice}`, 'warning', 4000);
+                }
+            }
+            
+            const result = await api.addBodyData(data);
+            if (result.success) {
+                utils.showToast('添加成功', 'success');
+                closeModal('addModal');
+                loadData();
+            } else {
+                utils.showToast(result.message || '添加失败', 'error');
+            }
+        }
+        
+        // 删除记录
+        async function deleteRecord(id) {
+            if (await utils.confirm('确定要删除这条记录吗？')) {
+                const result = await api.deleteBodyData(id);
+                if (result.success) {
+                    utils.showToast('删除成功', 'success');
+                    loadData();
+                } else {
+                    utils.showToast(result.message || '删除失败', 'error');
+                }
+            }
+        }
+        
+        // 输入框实时校验
+        const inputValidations = {
+            addHeight: { min: 100, max: 250, label: '身高' },
+            addWeight: { min: 20, max: 300, label: '体重' },
+            addPressureH: { min: 60, max: 260, label: '收缩压' },
+            addPressureL: { min: 40, max: 160, label: '舒张压' },
+            addSugar: { min: 1, max: 30, label: '血糖' },
+            addFatPre: { min: 3, max: 60, label: '体脂率' }
+        };
+        
+        Object.entries(inputValidations).forEach(([id, rule]) => {
+            const input = document.getElementById(id);
+            if (input) {
+                input.addEventListener('input', () => {
+                    input.classList.remove('input-warning', 'input-error');
+                    const val = parseFloat(input.value);
+                    if (input.value && (val < rule.min || val > rule.max)) {
+                        input.classList.add('input-warning');
+                    }
+                });
+            }
+        });
+        
+        // 初始化
+        loadData();
+    </script>
+</body>
+</html>

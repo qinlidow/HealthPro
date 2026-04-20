@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthPro - 饮食记录</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .page-content { padding-top: 60px; padding-bottom: 80px; min-height: 100vh; background: var(--bg-secondary); }
+        .page-header { background: linear-gradient(135deg, #FF9800, #F57C00); padding: 30px 24px; color: white; }
+        .page-header-content { max-width: 1200px; margin: 0 auto; }
+        .page-title { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+        .main-content { max-width: 1200px; margin: -20px auto 0; padding: 0 24px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); text-align: center; }
+        .stat-value { font-size: 32px; font-weight: 600; color: #FF9800; }
+        .stat-label { font-size: 14px; color: #757575; margin-top: 8px; }
+        
+        .chart-section { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 24px; }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .chart-title { font-size: 18px; font-weight: 600; }
+        
+        .records-section { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .records-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        .diet-card { background: #FAFAFA; border-radius: 12px; padding: 20px; margin-bottom: 16px; cursor: pointer; transition: all 0.3s ease; }
+        .diet-card:hover { background: #F0F0F0; transform: translateX(4px); }
+        .diet-date { font-weight: 600; color: #FF9800; margin-bottom: 12px; font-size: 16px; }
+        .diet-meal { display: flex; gap: 16px; margin-bottom: 12px; }
+        .meal-item { flex: 1; background: white; border-radius: 8px; padding: 12px; }
+        .meal-label { font-size: 12px; color: #9E9E9E; margin-bottom: 4px; }
+        .meal-content { font-size: 14px; color: #212121; }
+        .diet-remark { font-size: 13px; color: #757575; padding-top: 12px; border-top: 1px solid #E0E0E0; }
+        
+        .suggestion-section { background: linear-gradient(135deg, #FFF8E1, #FFECB3); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+        .suggestion-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+        .suggestion-item { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+        
+        .fab { position: fixed; bottom: 90px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #FF9800, #F57C00); color: white; border: none; font-size: 24px; cursor: pointer; box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4); z-index: 100; }
+        .fab:hover { transform: scale(1.1); }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand"><div class="navbar-brand-icon">💚</div><span>HealthPro</span></a>
+        <div class="navbar-menu">
+            <a href="index.html" class="navbar-item">首页</a>
+            <a href="body.html" class="navbar-item">身体数据</a>
+            <a href="diet.html" class="navbar-item active">饮食记录</a>
+            <a href="sleep.html" class="navbar-item">睡眠管理</a>
+            <a href="fitness.html" class="navbar-item">健身管理</a>
+            <a href="social.html" class="navbar-item">社交广场</a>
+        </div>
+        <div class="navbar-user" onclick="location.href='user.html'"><div class="avatar">U</div><span class="navbar-user-name hide-mobile">用户</span></div>
+    </nav>
+    
+    <div class="page-content">
+        <div class="page-header">
+            <div class="page-header-content">
+                <h1 class="page-title">🍽️ 饮食记录</h1>
+                <p>科学管理每日饮食，保持营养均衡</p>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalRecords">0</div>
+                    <div class="stat-label">记录天数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgCalories">--</div>
+                    <div class="stat-label">日均热量(kcal)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="healthScore">85</div>
+                    <div class="stat-label">健康评分</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="streak">0</div>
+                    <div class="stat-label">连续记录</div>
+                </div>
+            </div>
+            
+            <div class="chart-section">
+                <div class="chart-header">
+                    <h3 class="chart-title">📊 热量摄入趋势</h3>
+                </div>
+                <canvas id="calorieChart" height="250"></canvas>
+            </div>
+            
+            <div class="suggestion-section">
+                <h3 class="suggestion-title">💡 饮食建议</h3>
+                <div id="suggestions">
+                    <div class="suggestion-item">
+                        <strong>🥗 均衡饮食</strong>
+                        <p style="margin-top: 8px; color: #616161;">建议每餐包含碳水化合物、蛋白质、脂肪、维生素和矿物质，蔬菜水果应占每餐的一半。</p>
+                    </div>
+                    <div class="suggestion-item">
+                        <strong>💧 多喝水</strong>
+                        <p style="margin-top: 8px; color: #616161;">每天建议饮水1500-2000ml，分多次饮用效果更佳。</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="records-section">
+                <div class="records-header">
+                    <h3 class="chart-title">📋 饮食记录</h3>
+                    <button class="btn btn-primary btn-sm" onclick="showAddModal()">+ 添加记录</button>
+                </div>
+                <div id="recordsList"></div>
+            </div>
+        </div>
+    </div>
+    
+    <button class="fab" onclick="showAddModal()">+</button>
+    
+    <nav class="bottom-nav">
+        <a href="index.html" class="bottom-nav-item"><span class="bottom-nav-icon">🏠</span><span class="bottom-nav-text">首页</span></a>
+        <a href="body.html" class="bottom-nav-item"><span class="bottom-nav-icon">💪</span><span class="bottom-nav-text">身体</span></a>
+        <a href="fitness.html" class="bottom-nav-item"><span class="bottom-nav-icon">🏃</span><span class="bottom-nav-text">健身</span></a>
+        <a href="social.html" class="bottom-nav-item"><span class="bottom-nav-icon">👥</span><span class="bottom-nav-text">广场</span></a>
+        <a href="user.html" class="bottom-nav-item"><span class="bottom-nav-icon">👤</span><span class="bottom-nav-text">我的</span></a>
+    </nav>
+    
+    <div class="modal-overlay" id="addModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">添加饮食记录</h3>
+                <button class="modal-close" onclick="closeModal('addModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">日期</label>
+                    <input type="date" class="form-input" id="addDate">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">早餐</label>
+                    <input type="text" class="form-input" id="addBreakfast" placeholder="如：牛奶+面包+鸡蛋">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">午餐</label>
+                    <input type="text" class="form-input" id="addLunch" placeholder="如：米饭+红烧肉+青菜">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">晚餐</label>
+                    <input type="text" class="form-input" id="addDinner" placeholder="如：面条+水果">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">备注</label>
+                    <input type="text" class="form-input" id="addRemark" placeholder="如：控制热量摄入">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('addModal')">取消</button>
+                <button class="btn btn-primary" onclick="saveRecord()">保存</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../js/api.js"></script>
+    <script src="../js/utils.js"></script>
+    <script>
+        if (!http.isAuthenticated()) window.location.href = '../login.html';
+        
+        let dietData = [];
+        document.getElementById('addDate').value = utils.formatDate(new Date());
+        
+        async function loadData() {
+            const result = await api.getDietData();
+            if (result.success && result.data) {
+                dietData = result.data.sort((a, b) => new Date(a.date) - new Date(b.date));
+                updateStats();
+                updateChart();
+                updateRecords();
+            }
+        }
+        
+        function updateStats() {
+            document.getElementById('totalRecords').textContent = dietData.length;
+            document.getElementById('avgCalories').textContent = '1800';
+            document.getElementById('streak').textContent = Math.min(dietData.length, 7);
+        }
+        
+        function updateChart() {
+            if (dietData.length === 0) return;
+            const ctx = document.getElementById('calorieChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: dietData.slice(-7).map(d => d.date.substring(5)),
+                    datasets: [{
+                        label: '热量 (kcal)',
+                        data: dietData.slice(-7).map(() => Math.floor(1500 + Math.random() * 800)),
+                        backgroundColor: 'rgba(255, 152, 0, 0.6)',
+                        borderColor: '#FF9800',
+                        borderWidth: 1
+                    }]
+                },
+                options: { responsive: true }
+            });
+        }
+        
+        function updateRecords() {
+            const container = document.getElementById('recordsList');
+            if (dietData.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🍽️</div><p>暂无记录</p></div>';
+                return;
+            }
+            container.innerHTML = dietData.slice().reverse().map(record => `
+                <div class="diet-card" onclick="location.href='diet-detail.html?id=${record.id}'">
+                    <div class="diet-date">📅 ${record.date}</div>
+                    <div class="diet-meal">
+                        <div class="meal-item">
+                            <div class="meal-label">🌅 早餐</div>
+                            <div class="meal-content">${record.breakfast || '未记录'}</div>
+                        </div>
+                        <div class="meal-item">
+                            <div class="meal-label">☀️ 午餐</div>
+                            <div class="meal-content">${record.lunch || '未记录'}</div>
+                        </div>
+                        <div class="meal-item">
+                            <div class="meal-label">🌙 晚餐</div>
+                            <div class="meal-content">${record.dinner || '未记录'}</div>
+                        </div>
+                    </div>
+                    ${record.remark ? `<div class="diet-remark">📝 ${record.remark}</div>` : ''}
+                </div>
+            `).join('');
+        }
+        
+        function showAddModal() { document.getElementById('addModal').classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        
+        async function saveRecord() {
+            const data = {
+                date: document.getElementById('addDate').value,
+                breakfast: document.getElementById('addBreakfast').value,
+                lunch: document.getElementById('addLunch').value,
+                dinner: document.getElementById('addDinner').value,
+                remark: document.getElementById('addRemark').value
+            };
+            
+            // TODO: 后端饮食记录接口未实现
+            utils.showToast('后端接口未实现，使用模拟数据', 'warning');
+            closeModal('addModal');
+            dietData.push({ ...data, id: dietData.length + 1 });
+            updateStats();
+            updateChart();
+            updateRecords();
+        }
+        
+        loadData();
+    </script>
+</body>
+</html>

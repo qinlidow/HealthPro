@@ -14,10 +14,10 @@ public class UpdateUserInfoImpl {
     private UserMapper userMapper;
 
     public void updateUserInfo(User user,int id){
-        userMapper.UpdateUserInfo(user,1);//后续id需要改成获取当前的登录用户
+        userMapper.UpdateUserInfo(user,id);//后续id需要改成获取当前的登录用户
     }
 
     public void updatePassword(String password,int id){
-        userMapper.UpdatePassWord(password,2);//后续id需要改成获取当前的登录用户
+        userMapper.UpdatePassWord(password,id);//后续id需要改成获取当前的登录用户
     }
 }

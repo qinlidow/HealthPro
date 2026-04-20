@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthPro - 身体数据</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .page-content {
+            padding-top: 60px;
+            padding-bottom: 80px;
+            min-height: 100vh;
+            background: var(--bg-secondary);
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            padding: 30px 24px;
+            color: white;
+        }
+        
+        .page-header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .main-content {
+            max-width: 1200px;
+            margin: -20px auto 0;
+            padding: 0 24px;
+        }
+        
+        .data-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .overview-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .overview-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+        
+        .overview-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+        
+        .overview-label {
+            font-size: 14px;
+            color: #757575;
+            margin-bottom: 4px;
+        }
+        
+        .overview-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #212121;
+        }
+        
+        .overview-unit {
+            font-size: 14px;
+            color: #9E9E9E;
+            margin-left: 4px;
+        }
+        
+        .overview-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        
+        .chart-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 24px;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .chart-tabs {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .chart-tab {
+            padding: 8px 16px;
+            border: none;
+            background: #F5F5F5;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .chart-tab.active {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .records-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .records-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .record-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-radius: 12px;
+            background: #FAFAFA;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .record-item:hover {
+            background: #F0F0F0;
+        }
+        
+        .record-date {
+            width: 80px;
+            font-weight: 500;
+            color: #4CAF50;
+        }
+        
+        .record-data {
+            flex: 1;
+            display: flex;
+            gap: 24px;
+        }
+        
+        .record-data-item {
+            text-align: center;
+        }
+        
+        .record-data-value {
+            font-weight: 600;
+            color: #212121;
+        }
+        
+        .record-data-label {
+            font-size: 12px;
+            color: #9E9E9E;
+        }
+        
+        .record-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .record-btn {
+            padding: 8px 12px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .record-btn:hover {
+            background: #E0E0E0;
+        }
+        
+        .suggestion-section {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .suggestion-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .suggestion-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .suggestion-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .prediction-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            border: 2px dashed #4CAF50;
+            margin-bottom: 24px;
+        }
+        
+        .prediction-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .prediction-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        
+        .prediction-item {
+            text-align: center;
+            padding: 20px;
+            background: #F5F5F5;
+            border-radius: 12px;
+        }
+        
+        .prediction-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #4CAF50;
+        }
+        
+        .prediction-label {
+            font-size: 14px;
+            color: #757575;
+            margin-top: 8px;
+        }
+        
+        .fab {
+            position: fixed;
+            bottom: 90px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .fab:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <div class="navbar-brand-icon">💚</div>
+            <span>HealthPro</span>
+        </a>
+        <div class="navbar-menu">
+            <a href="index.html" class="navbar-item">首页</a>
+            <a href="body.html" class="navbar-item active">身体数据</a>
+            <a href="diet.html" class="navbar-item">饮食记录</a>
+            <a href="sleep.html" class="navbar-item">睡眠管理</a>
+            <a href="fitness.html" class="navbar-item">健身管理</a>
+            <a href="social.html" class="navbar-item">社交广场</a>
+        </div>
+        <div class="navbar-user" onclick="location.href='user.html'">
+            <div class="avatar">U</div>
+            <span class="navbar-user-name hide-mobile">用户</span>
+        </div>
+    </nav>
+    
+    <!-- 页面内容 -->
+    <div class="page-content">
+        <div class="page-header">
+            <div class="page-header-content">
+                <h1 class="page-title">💪 身体数据</h1>
+                <p>记录和追踪您的身体健康指标</p>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <!-- 数据概览 -->
+            <div class="data-overview">
+                <div class="overview-card" onclick="location.href='body-detail.html?type=weight'">
+                    <div class="overview-icon" style="background: #E8F5E9;">⚖️</div>
+                    <div class="overview-label">体重</div>
+                    <div class="overview-value"><span id="currentWeight">--</span><span class="overview-unit">kg</span></div>
+                    <div class="overview-status" id="weightStatus" style="background: #E8F5E9; color: #2E7D32;">--</div>
+                </div>
+                <div class="overview-card" onclick="location.href='body-detail.html?type=bmi'">
+                    <div class="overview-icon" style="background: #E3F2FD;">📊</div>
+                    <div class="overview-label">BMI</div>
+                    <div class="overview-value"><span id="currentBMI">--</span></div>
+                    <div class="overview-status" id="bmiStatus" style="background: #E3F2FD; color: #1565C0;">--</div>
+                </div>
+                <div class="overview-card" onclick="location.href='body-detail.html?type=pressure'">
+                    <div class="overview-icon" style="background: #FFF3E0;">❤️</div>
+                    <div class="overview-label">血压</div>
+                    <div class="overview-value"><span id="currentPressure">--/--</span><span class="overview-unit">mmHg</span></div>
+                    <div class="overview-status" id="pressureStatus" style="background: #FFF3E0; color: #E65100;">--</div>
+                </div>
+                <div class="overview-card" onclick="location.href='body-detail.html?type=sugar'">
+                    <div class="overview-icon" style="background: #F3E5F5;">🩸</div>
+                    <div class="overview-label">血糖</div>
+                    <div class="overview-value"><span id="currentSugar">--</span><span class="overview-unit">mmol/L</span></div>
+                    <div class="overview-status" id="sugarStatus" style="background: #F3E5F5; color: #7B1FA2;">--</div>
+                </div>
+            </div>
+            
+            <!-- 图表区域 -->
+            <div class="chart-section">
+                <div class="chart-header">
+                    <h3 class="chart-title">📈 趋势图表</h3>
+                    <div class="chart-tabs">
+                        <button class="chart-tab active" data-range="7">近7天</button>
+                        <button class="chart-tab" data-range="30">近30天</button>
+                        <button class="chart-tab" data-range="90">近90天</button>
+                    </div>
+                </div>
+                <canvas id="trendChart" height="300"></canvas>
+            </div>
+            
+            <!-- 建议模块 -->
+            <div class="suggestion-section">
+                <h3 class="suggestion-title">💡 健康建议</h3>
+                <div id="suggestions">
+                    <div class="suggestion-item">
+                        <p>暂无建议，请先添加身体数据</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 数据预测 -->
+            <div class="prediction-section">
+                <h3 class="prediction-title">🔮 数据预测（未来7天）</h3>
+                <div class="prediction-grid">
+                    <div class="prediction-item">
+                        <div class="prediction-value" id="predictWeight">--</div>
+                        <div class="prediction-label">预测体重 (kg)</div>
+                    </div>
+                    <div class="prediction-item">
+                        <div class="prediction-value" id="predictBMI">--</div>
+                        <div class="prediction-label">预测BMI</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 记录列表 -->
+            <div class="records-section">
+                <div class="records-header">
+                    <h3 class="chart-title">📋 历史记录</h3>
+                    <button class="btn btn-primary btn-sm" onclick="showAddModal()">+ 添加记录</button>
+                </div>
+                <div id="recordsList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📝</div>
+                        <p>暂无记录，点击右下角按钮添加</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加记录按钮 -->
+    <button class="fab" onclick="showAddModal()">+</button>
+    
+    <!-- 底部导航栏 -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">🏠</span>
+            <span class="bottom-nav-text">首页</span>
+        </a>
+        <a href="body.html" class="bottom-nav-item active">
+            <span class="bottom-nav-icon">💪</span>
+            <span class="bottom-nav-text">身体</span>
+        </a>
+        <a href="fitness.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">🏃</span>
+            <span class="bottom-nav-text">健身</span>
+        </a>
+        <a href="social.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">👥</span>
+            <span class="bottom-nav-text">广场</span>
+        </a>
+        <a href="user.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">👤</span>
+            <span class="bottom-nav-text">我的</span>
+        </a>
+    </nav>
+    
+    <!-- 添加记录模态框 -->
+    <div class="modal-overlay" id="addModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">添加身体数据</h3>
+                <button class="modal-close" onclick="closeModal('addModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">日期</label>
+                    <input type="date" class="form-input" id="addDate">
+                </div>
+                <div class="grid grid-2 gap-16">
+                    <div class="form-group">
+                        <label class="form-label">身高 (cm)</label>
+                        <input type="number" class="form-input" id="addHeight" step="0.1" placeholder="如：170">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">体重 (kg)</label>
+                        <input type="number" class="form-input" id="addWeight" step="0.1" placeholder="如：65">
+                    </div>
+                </div>
+                <div class="grid grid-2 gap-16">
+                    <div class="form-group">
+                        <label class="form-label">收缩压 (mmHg)</label>
+                        <input type="number" class="form-input" id="addPressureH" placeholder="如：120">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">舒张压 (mmHg)</label>
+                        <input type="number" class="form-input" id="addPressureL" placeholder="如：80">
+                    </div>
+                </div>
+                <div class="grid grid-2 gap-16">
+                    <div class="form-group">
+                        <label class="form-label">血糖 (mmol/L)</label>
+                        <input type="number" class="form-input" id="addSugar" step="0.1" placeholder="如：5.5">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">体脂率 (%)</label>
+                        <input type="number" class="form-input" id="addFatPre" step="0.1" placeholder="如：20">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('addModal')">取消</button>
+                <button class="btn btn-primary" onclick="saveRecord()">保存</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../js/api.js"></script>
+    <script src="../js/utils.js"></script>
+    <script>
+        // 检查登录状态
+        if (!http.isAuthenticated()) {
+            window.location.href = '../login.html';
+        }
+        
+        let bodyData = [];
+        let trendChart = null;
+        
+        // 设置默认日期
+        document.getElementById('addDate').value = utils.formatDate(new Date());
+        
+        // 加载数据
+        async function loadData() {
+            try {
+                const result = await api.getBodyData();
+                if (result.success && result.data) {
+                    bodyData = result.data.sort((a, b) => new Date(a.date) - new Date(b.date));
+                    updateOverview();
+                    updateChart();
+                    updateRecords();
+                    updateSuggestions();
+                    updatePredictions();
+                }
+            } catch (error) {
+                console.error('加载数据失败:', error);
+            }
+        }
+        
+        // 更新概览
+        function updateOverview() {
+            if (bodyData.length === 0) return;
+            
+            const latest = bodyData[bodyData.length - 1];
+            
+            // 体重
+            if (latest.weight) {
+                document.getElementById('currentWeight').textContent = latest.weight;
+            }
+            
+            // BMI
+            if (latest.height && latest.weight) {
+                const bmi = utils.calculateBMI(latest.weight, latest.height);
+                document.getElementById('currentBMI').textContent = bmi;
+                const bmiStatus = utils.getBMIStatus(bmi);
+                document.getElementById('bmiStatus').textContent = bmiStatus.status;
+            }
+            
+            // 血压
+            if (latest.pressure_h && latest.pressure_l) {
+                document.getElementById('currentPressure').textContent = `${latest.pressure_h}/${latest.pressure_l}`;
+                const pressureStatus = utils.getBloodPressureStatus(latest.pressure_h, latest.pressure_l);
+                document.getElementById('pressureStatus').textContent = pressureStatus.status;
+            }
+            
+            // 血糖
+            if (latest.sugar) {
+                document.getElementById('currentSugar').textContent = latest.sugar;
+                const sugarStatus = utils.getBloodSugarStatus(latest.sugar);
+                document.getElementById('sugarStatus').textContent = sugarStatus.status;
+            }
+        }
+        
+        // 更新图表
+        function updateChart(range = 7) {
+            const chartData = bodyData.slice(-range);
+            
+            if (chartData.length === 0) return;
+            
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            
+            if (trendChart) {
+                trendChart.destroy();
+            }
+            
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.map(d => d.date.substring(5)),
+                    datasets: [
+                        {
+                            label: '体重 (kg)',
+                            data: chartData.map(d => d.weight),
+                            borderColor: '#4CAF50',
+                            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: '血糖 (mmol/L)',
+                            data: chartData.map(d => d.sugar),
+                            borderColor: '#2196F3',
+                            backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 更新记录列表
+        function updateRecords() {
+            const container = document.getElementById('recordsList');
+            
+            if (bodyData.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📝</div>
+                        <p>暂无记录，点击右下角按钮添加</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = bodyData.slice().reverse().map(record => `
+                <div class="record-item" onclick="viewDetail(${record.id})">
+                    <div class="record-date">${record.date}</div>
+                    <div class="record-data">
+                        <div class="record-data-item">
+                            <div class="record-data-value">${record.weight || '--'}</div>
+                            <div class="record-data-label">体重kg</div>
+                        </div>
+                        <div class="record-data-item">
+                            <div class="record-data-value">${record.pressure_h || '--'}/${record.pressure_l || '--'}</div>
+                            <div class="record-data-label">血压</div>
+                        </div>
+                        <div class="record-data-item">
+                            <div class="record-data-value">${record.sugar || '--'}</div>
+                            <div class="record-data-label">血糖</div>
+                        </div>
+                    </div>
+                    <div class="record-actions">
+                        <button class="record-btn" onclick="event.stopPropagation(); deleteRecord(${record.id})">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 更新建议
+        function updateSuggestions() {
+            if (bodyData.length === 0) return;
+            
+            const latest = bodyData[bodyData.length - 1];
+            const suggestions = [];
+            
+            // BMI建议
+            if (latest.height && latest.weight) {
+                const bmi = utils.calculateBMI(latest.weight, latest.height);
+                const bmiStatus = utils.getBMIStatus(bmi);
+                suggestions.push({
+                    icon: '📊',
+                    title: 'BMI建议',
+                    text: `您的BMI为${bmi}，${bmiStatus.status}。${bmiStatus.advice}`
+                });
+            }
+            
+            // 血压建议
+            if (latest.pressure_h && latest.pressure_l) {
+                const pressureStatus = utils.getBloodPressureStatus(latest.pressure_h, latest.pressure_l);
+                suggestions.push({
+                    icon: '❤️',
+                    title: '血压建议',
+                    text: `您的血压为${latest.pressure_h}/${latest.pressure_l}mmHg，${pressureStatus.status}。${pressureStatus.advice}`
+                });
+            }
+            
+            // 血糖建议
+            if (latest.sugar) {
+                const sugarStatus = utils.getBloodSugarStatus(latest.sugar);
+                suggestions.push({
+                    icon: '🩸',
+                    title: '血糖建议',
+                    text: `您的血糖为${latest.sugar}mmol/L，${sugarStatus.status}。${sugarStatus.advice}`
+                });
+            }
+            
+            document.getElementById('suggestions').innerHTML = suggestions.map(s => `
+                <div class="suggestion-item">
+                    <strong>${s.icon} ${s.title}</strong>
+                    <p style="margin-top: 8px; color: #616161;">${s.text}</p>
+                </div>
+            `).join('');
+        }
+        
+        // 更新预测
+        function updatePredictions() {
+            if (bodyData.length < 2) return;
+            
+            const weights = bodyData.map(d => d.weight).filter(w => w);
+            if (weights.length >= 2) {
+                const prediction = utils.predictLinear(weights, 7);
+                if (prediction) {
+                    document.getElementById('predictWeight').textContent = prediction.value;
+                    
+                    // 预测BMI
+                    const latest = bodyData[bodyData.length - 1];
+                    if (latest.height) {
+                        const predictedBMI = utils.calculateBMI(prediction.value, latest.height);
+                        document.getElementById('predictBMI').textContent = predictedBMI;
+                    }
+                }
+            }
+        }
+        
+        // 显示添加模态框
+        function showAddModal() {
+            document.getElementById('addModal').classList.add('active');
+        }
+        
+        // 关闭模态框
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        
+        // 保存记录
+        async function saveRecord() {
+            const data = {
+                date: document.getElementById('addDate').value,
+                height: parseFloat(document.getElementById('addHeight').value) || null,
+                weight: parseFloat(document.getElementById('addWeight').value) || null,
+                pressure_h: parseFloat(document.getElementById('addPressureH').value) || null,
+                pressure_l: parseFloat(document.getElementById('addPressureL').value) || null,
+                sugar: parseFloat(document.getElementById('addSugar').value) || null,
+                fat_pre: parseFloat(document.getElementById('addFatPre').value) || null
+            };
+            
+            if (!data.date) {
+                utils.showToast('请选择日期', 'error');
+                return;
+            }
+            
+            const result = await api.addBodyData(data);
+            if (result.success) {
+                utils.showToast('添加成功', 'success');
+                closeModal('addModal');
+                loadData();
+            } else {
+                utils.showToast(result.message || '添加失败', 'error');
+            }
+        }
+        
+        // 删除记录
+        async function deleteRecord(id) {
+            if (await utils.confirm('确定要删除这条记录吗？')) {
+                const result = await api.deleteBodyData(id);
+                if (result.success) {
+                    utils.showToast('删除成功', 'success');
+                    loadData();
+                } else {
+                    utils.showToast(result.message || '删除失败', 'error');
+                }
+            }
+        }
+        
+        // 查看详情
+        function viewDetail(id) {
+            window.location.href = `body-detail.html?id=${id}`;
+        }
+        
+        // 图表时间范围切换
+        document.querySelectorAll('.chart-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                updateChart(parseInt(tab.dataset.range));
+            });
+        });
+        
+        // 初始化
+        loadData();
+    </script>
+</body>
+</html>

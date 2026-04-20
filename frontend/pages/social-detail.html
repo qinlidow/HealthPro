@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthPro - 帖子详情</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <style>
+        .page-content { padding-top: 60px; padding-bottom: 80px; min-height: 100vh; background: var(--bg-secondary); }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 0 24px; }
+
+        .back-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 0; color: #757575; cursor: pointer; font-size: 15px; background: none; border: none; }
+        .back-btn:hover { color: #E91E63; }
+
+        .post-detail { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+        .post-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .post-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #E91E63, #C2185B); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 20px; flex-shrink: 0; overflow: hidden; cursor: pointer; }
+        .post-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .post-author { flex: 1; }
+        .post-author-name { font-weight: 600; font-size: 16px; cursor: pointer; }
+        .post-author-name:hover { color: #E91E63; }
+        .post-author-time { font-size: 12px; color: #9E9E9E; }
+        .post-category { padding: 4px 12px; border-radius: 20px; font-size: 12px; background: #F5F5F5; color: #757575; }
+        .post-top-badge { padding: 2px 8px; border-radius: 4px; font-size: 11px; background: #FF5722; color: white; font-weight: 600; }
+
+        .post-content { font-size: 16px; line-height: 1.8; color: #212121; margin-bottom: 16px; }
+        .post-image { width: 100%; max-height: 500px; object-fit: cover; border-radius: 12px; margin-bottom: 16px; }
+
+        .post-actions { display: flex; gap: 24px; padding-top: 16px; border-top: 1px solid #F0F0F0; }
+        .post-action { display: flex; align-items: center; gap: 8px; color: #757575; cursor: pointer; transition: all 0.3s ease; background: none; border: none; font-size: 15px; padding: 8px 16px; border-radius: 8px; }
+        .post-action:hover { background: #FCE4EC; color: #E91E63; }
+        .post-action.liked { color: #E91E63; }
+        .post-action.favorited { color: #FF9800; }
+
+        /* 评论区 */
+        .comment-section { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .comment-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+
+        .comment-input-area { display: flex; gap: 12px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #F0F0F0; }
+        .comment-input { flex: 1; padding: 12px 16px; border: 1px solid #E0E0E0; border-radius: 12px; font-size: 14px; resize: none; outline: none; transition: border-color 0.3s; }
+        .comment-input:focus { border-color: #E91E63; }
+        .comment-submit { padding: 10px 24px; background: #E91E63; color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 14px; white-space: nowrap; transition: all 0.3s; }
+        .comment-submit:hover { background: #C2185B; }
+
+        .comment-item { display: flex; gap: 12px; padding: 16px 0; border-bottom: 1px solid #F5F5F5; }
+        .comment-item:last-child { border-bottom: none; }
+        .comment-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #E91E63, #C2185B); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px; flex-shrink: 0; overflow: hidden; cursor: pointer; }
+        .comment-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .comment-body { flex: 1; }
+        .comment-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; cursor: pointer; }
+        .comment-name:hover { color: #E91E63; }
+        .comment-text { font-size: 14px; line-height: 1.6; color: #424242; margin-bottom: 4px; }
+        .comment-time { font-size: 12px; color: #9E9E9E; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand"><div class="navbar-brand-icon">💚</div><span>HealthPro</span></a>
+        <div class="navbar-menu">
+            <a href="index.html" class="navbar-item">首页</a>
+            <a href="body.html" class="navbar-item">身体数据</a>
+            <a href="diet.html" class="navbar-item">饮食记录</a>
+            <a href="sleep.html" class="navbar-item">睡眠管理</a>
+            <a href="fitness.html" class="navbar-item">健身管理</a>
+            <a href="social.html" class="navbar-item active">社交广场</a>
+        </div>
+        <div class="navbar-user" onclick="location.href='user.html'"><div class="avatar" id="userAvatar">U</div><span class="navbar-user-name hide-mobile" id="userName">用户</span></div>
+    </nav>
+
+    <div class="page-content">
+        <div class="main-content">
+            <button class="back-btn" onclick="location.href='social.html'">← 返回广场</button>
+
+            <!-- 帖子详情 -->
+            <div class="post-detail" id="postDetail">
+                <div class="empty-state"><div class="loading"></div><p>加载中...</p></div>
+            </div>
+
+            <!-- 评论区 -->
+            <div class="comment-section">
+                <h3 class="comment-title">💬 评论</h3>
+                <div class="comment-input-area">
+                    <textarea class="comment-input" id="commentInput" rows="2" placeholder="写下你的评论..."></textarea>
+                    <button class="comment-submit" onclick="submitComment()">发送</button>
+                </div>
+                <div id="commentsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="bottom-nav-item"><span class="bottom-nav-icon">🏠</span><span class="bottom-nav-text">首页</span></a>
+        <a href="body.html" class="bottom-nav-item"><span class="bottom-nav-icon">💪</span><span class="bottom-nav-text">身体</span></a>
+        <a href="diet.html" class="bottom-nav-item"><span class="bottom-nav-icon">🍽️</span><span class="bottom-nav-text">饮食</span></a>
+        <a href="fitness.html" class="bottom-nav-item"><span class="bottom-nav-icon">🏃</span><span class="bottom-nav-text">健身</span></a>
+        <a href="social.html" class="bottom-nav-item active"><span class="bottom-nav-icon">👥</span><span class="bottom-nav-text">广场</span></a>
+        <a href="user.html" class="bottom-nav-item"><span class="bottom-nav-icon">👤</span><span class="bottom-nav-text">我的</span></a>
+    </nav>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/utils.js"></script>
+    <script>
+        if (!http.isAuthenticated()) window.location.href = '../login.html';
+
+        // 加载导航栏用户信息
+        async function loadNavbarUser() {
+            try {
+                const result = await api.getUserInfo();
+                if (result.success && result.data) {
+                    const user = result.data;
+                    document.getElementById('userName').textContent = user.name || '用户';
+                    const avatarEl = document.getElementById('userAvatar');
+                    if (user.avatar) {
+                        avatarEl.innerHTML = `<img src="${API_BASE_URL}${user.avatar}" alt="头像" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+                    } else {
+                        avatarEl.textContent = (user.name || 'U')[0].toUpperCase();
+                    }
+                }
+            } catch (e) {}
+        }
+        loadNavbarUser();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = parseInt(urlParams.get('id'));
+
+        if (!postId) {
+            location.href = 'social.html';
+        }
+
+        const categoryNames = { body: '💪 身体数据', diet: '🍽️ 饮食记录', sleep: '😴 睡眠管理', fitness: '🏃 健身管理' };
+        let currentPost = null;
+        let isFavorited = false;
+        let isLiked = false;
+
+        async function loadPost() {
+            const result = await api.getPostById(postId);
+            if (result.success && result.data) {
+                currentPost = result.data;
+                await checkFavoriteStatus();
+                await checkLikedStatus();
+                renderPost();
+            } else {
+                document.getElementById('postDetail').innerHTML = '<div class="empty-state"><div class="empty-state-icon">❌</div><p>帖子不存在或已被删除</p></div>';
+            }
+        }
+
+        function renderAvatar(post, size) {
+            const sz = size || 48;
+            if (post.user_avatar) {
+                return `<div class="post-avatar" style="width:${sz}px;height:${sz}px" onclick="location.href='profile.html?userId=${post.user_id}'"><img src="${API_BASE_URL}${post.user_avatar}" alt="头像"></div>`;
+            }
+            return `<div class="post-avatar" style="width:${sz}px;height:${sz}px" onclick="location.href='profile.html?userId=${post.user_id}'">${(post.user_name || 'U')[0].toUpperCase()}</div>`;
+        }
+
+        function renderPost() {
+            const post = currentPost;
+            document.getElementById('postDetail').innerHTML = `
+                <div class="post-header">
+                    ${renderAvatar(post)}
+                    <div class="post-author">
+                        <div class="post-author-name" onclick="location.href='profile.html?userId=${post.user_id}'">${post.user_name || '匿名用户'}</div>
+                        <div class="post-author-time">${post.date || ''}</div>
+                    </div>
+                    ${post.is_top ? '<span class="post-top-badge">置顶</span>' : ''}
+                    <div class="post-category">${categoryNames[post.category] || '其他'}</div>
+                </div>
+                <div class="post-content">${post.title ? '<h3 style="margin:0 0 12px 0;font-size:18px;font-weight:600;">' + post.title + '</h3>' : ''}${post.content}</div>
+                ${post.image ? `<img class="post-image" src="${API_BASE_URL}${post.image}" alt="帖子图片">` : ''}
+                <div class="post-actions">
+                    <button class="post-action ${isLiked ? 'liked' : ''}" onclick="toggleLike()">
+                        <span>${isLiked ? '❤️' : '🤍'}</span>
+                        <span>${post.likes}</span>
+                    </button>
+                    <button class="post-action">
+                        <span>💬</span>
+                        <span>${post.comments}</span>
+                    </button>
+                    <button class="post-action ${isFavorited ? 'favorited' : ''}" onclick="toggleFavorite()">
+                        <span>${isFavorited ? '⭐' : '☆'}</span>
+                        <span>${isFavorited ? '已收藏' : '收藏'}</span>
+                    </button>
+                </div>
+            `;
+        }
+
+        async function likePost() {
+            const result = await api.likePost(postId);
+            if (result.success) {
+                utils.showToast('点赞成功', 'success');
+                loadPost();
+            }
+        }
+
+        async function checkLikedStatus() {
+            try {
+                const result = await api.isLiked(postId);
+                if (result.success && result.data !== undefined) {
+                    isLiked = result.data;
+                }
+            } catch (e) {}
+        }
+
+        async function toggleLike() {
+            if (isLiked) {
+                const result = await api.unlikePost(postId);
+                if (result.success) {
+                    isLiked = false;
+                    utils.showToast('已取消点赞', 'success');
+                    loadPost();
+                } else {
+                    utils.showToast(result.message || '取消点赞失败', 'error');
+                }
+            } else {
+                const result = await api.likePost(postId);
+                if (result.success) {
+                    isLiked = true;
+                    utils.showToast('点赞成功', 'success');
+                    loadPost();
+                } else {
+                    utils.showToast(result.message || '点赞失败', 'error');
+                }
+            }
+        }
+
+        async function checkFavoriteStatus() {
+            try {
+                const result = await api.isFavorite(postId);
+                if (result.success && result.data !== undefined) {
+                    isFavorited = result.data;
+                }
+            } catch (e) {}
+        }
+
+        async function toggleFavorite() {
+            if (isFavorited) {
+                const result = await api.unfavoritePost(postId);
+                if (result.success) {
+                    isFavorited = false;
+                    utils.showToast('已取消收藏', 'success');
+                    renderPost();
+                } else {
+                    utils.showToast(result.message || '取消收藏失败', 'error');
+                }
+            } else {
+                const result = await api.favoritePost(postId);
+                if (result.success) {
+                    isFavorited = true;
+                    utils.showToast('收藏成功', 'success');
+                    renderPost();
+                } else {
+                    utils.showToast(result.message || '收藏失败', 'error');
+                }
+            }
+        }
+
+        // 评论功能
+        async function loadComments() {
+            const result = await api.getComments(postId);
+            if (result.success && result.data) {
+                renderComments(result.data);
+            } else {
+                document.getElementById('commentsList').innerHTML = '<div class="empty-state"><p>暂无评论</p></div>';
+            }
+        }
+
+        function renderComments(comments) {
+            const container = document.getElementById('commentsList');
+            if (!comments || comments.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:#9E9E9E;padding:20px 0">暂无评论，来说点什么吧</div>';
+                return;
+            }
+            container.innerHTML = comments.map(c => `
+                <div class="comment-item">
+                    <div class="comment-avatar" onclick="location.href='profile.html?userId=${c.user_id}'">${(c.user_name || 'U')[0].toUpperCase()}</div>
+                    <div class="comment-body">
+                        <div class="comment-name" onclick="location.href='profile.html?userId=${c.user_id}'">${c.user_name || '匿名用户'}</div>
+                        <div class="comment-text">${c.content}</div>
+                        <div class="comment-time">${c.date || ''}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function submitComment() {
+            const input = document.getElementById('commentInput');
+            const content = input.value.trim();
+            if (!content) {
+                utils.showToast('请输入评论内容', 'error');
+                return;
+            }
+            const today = new Date();
+            const dateStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+
+            const result = await api.addComment({ post_id: postId, content: content, date: dateStr });
+            if (result.success) {
+                utils.showToast('评论成功', 'success');
+                input.value = '';
+                loadComments();
+                loadPost();
+            } else {
+                utils.showToast(result.message || '评论失败', 'error');
+            }
+        }
+
+        loadPost();
+        loadComments();
+    </script>
+</body>
+</html>

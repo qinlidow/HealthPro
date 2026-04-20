@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learning.healthpro.mapper.CheckInMapper">
+    <insert id="insertCheckIn" useGeneratedKeys="true" keyProperty="id">
+        insert into check_in(user_id, date)
+        values(#{user_id}, #{date})
+    </insert>
+
+    <select id="getCheckIn" resultType="com.learning.healthpro.entity.CheckIn">
+        select id, user_id, date from check_in where user_id = #{userId} and date = #{date}
+    </select>
+
+    <select id="getCheckInList" resultType="com.learning.healthpro.entity.CheckIn">
+        select id, user_id, date from check_in where user_id = #{userId} order by date desc
+    </select>
+
+    <select id="getCheckInByMonth" resultType="com.learning.healthpro.entity.CheckIn">
+        select id, user_id, date from check_in where user_id = #{userId} and date like concat(#{yearMonth}, '%') order by date
+    </select>
+
+    <select id="getCheckInCount" resultType="int">
+        select count(*) from check_in where user_id = #{userId}
+    </select>
+</mapper>

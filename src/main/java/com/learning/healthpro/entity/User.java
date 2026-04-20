@@ -20,6 +20,8 @@ public class User {
 
     private String gender;
 
+    private String avatar;
+
     public User(){};
 
     public int getId() {
@@ -76,5 +78,13 @@ public class User {
 
     public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }

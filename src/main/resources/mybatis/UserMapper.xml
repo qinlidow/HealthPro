@@ -17,7 +17,7 @@
     </select>
 
     <select id="getInfoById" resultType="com.learning.healthpro.entity.User">
-        select name,phone,email,age,gender from user where id = #{id}
+        select id,name,phone,email,age,gender,avatar from user where id = #{id}
     </select>
 
     <insert id="insert">
@@ -40,7 +40,10 @@
                 age = #{user.age},
             </if>
             <if test="user.gender != null and user.gender != ''">
-                gender = #{user.gender}
+                gender = #{user.gender},
+            </if>
+            <if test="user.avatar != null and user.avatar != ''">
+                avatar = #{user.avatar}
             </if>
         </set>
         where id = #{id}

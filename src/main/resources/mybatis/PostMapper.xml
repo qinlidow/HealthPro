@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learning.healthpro.mapper.PostMapper">
+    <select id="getAllPosts" resultType="com.learning.healthpro.entity.Post">
+        select p.id, p.category, p.title, p.content, p.image, p.likes, p.comments, p.date, p.user_id, p.user_name, u.avatar as user_avatar, p.status, p.is_top
+        from post p left join user u on p.user_id = u.id
+        where p.status = 1 order by p.is_top desc, p.id desc
+    </select>
+
+    <select id="getPostsByCategory" resultType="com.learning.healthpro.entity.Post">
+        select p.id, p.category, p.title, p.content, p.image, p.likes, p.comments, p.date, p.user_id, p.user_name, u.avatar as user_avatar, p.status, p.is_top
+        from post p left join user u on p.user_id = u.id
+        where p.category = #{category} and p.status = 1 order by p.is_top desc, p.id desc
+    </select>
+
+    <select id="getPostsByUserId" resultType="com.learning.healthpro.entity.Post">
+        select p.id, p.category, p.title, p.content, p.image, p.likes, p.comments, p.date, p.user_id, p.user_name, u.avatar as user_avatar, p.status, p.is_top
+        from post p left join user u on p.user_id = u.id
+        where p.user_id = #{userId} order by p.is_top desc, p.id desc
+    </select>
+
+    <select id="getPostsByFollowingIds" resultType="com.learning.healthpro.entity.Post">
+        select p.id, p.category, p.title, p.content, p.image, p.likes, p.comments, p.date, p.user_id, p.user_name, u.avatar as user_avatar, p.status, p.is_top
+        from post p left join user u on p.user_id = u.id
+        where p.user_id in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and p.status = 1 order by p.is_top desc, p.id desc
+    </select>
+
+    <select id="getPendingPosts" resultType="com.learning.healthpro.entity.Post">
+        select p.id, p.category, p.title, p.content, p.image, p.likes, p.comments, p.date, p.user_id, p.user_name, u.avatar as user_avatar, p.status, p.is_top
+        from post p left join user u on p.user_id = u.id
+        where p.status = 0 order by p.id desc
+    </select>
+
+    <select id="getPostById" resultType="com.learning.healthpro.entity.Post">
+        select p.id, p.category, p.title, p.content, p.image, p.likes, p.comments, p.date, p.user_id, p.user_name, u.avatar as user_avatar, p.status, p.is_top
+        from post p left join user u on p.user_id = u.id
+        where p.id = #{id}
+    </select>
+
+    <insert id="insertPost" useGeneratedKeys="true" keyProperty="id">
+        insert into post(category, title, content, image, likes, comments, date, user_id, user_name, status, is_top)
+        values(#{category}, #{title}, #{content}, #{image}, #{likes}, #{comments}, #{date}, #{user_id}, #{user_name}, #{status}, #{is_top})
+    </insert>
+
+    <update id="addLike">
+        update post set likes = likes + 1 where id = #{id}
+    </update>
+
+    <update id="addComment">
+        update post set comments = comments + 1 where id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        update post set status = #{status} where id = #{id}
+    </update>
+
+    <update id="updateTop">
+        update post set is_top = #{isTop} where id = #{id}
+    </update>
+
+    <delete id="deletePostById">
+        delete from post where id = #{id}
+    </delete>
+</mapper>

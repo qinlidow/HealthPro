@@ -1,6 +1,5 @@
 package com.learning.healthpro.mapper;
 
-import com.learning.healthpro.entity.Body;
 import com.learning.healthpro.entity.Diet;
 import org.apache.ibatis.annotations.Mapper;
 

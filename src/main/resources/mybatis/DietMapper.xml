@@ -10,16 +10,14 @@
 
     <insert id="insertDietById">
         insert into diet(breakfast,lunch,dinner,remark,date,user_id)
-            value (#{diet.breakfast},#{diet.lunch},#{diet.dinner},#{diet.remark},#{diet.date},#{user_id})
+            values (#{diet.breakfast},#{diet.lunch},#{diet.dinner},#{diet.remark},#{diet.date},#{user_id})
     </insert>
 
     <delete id="deleteDietById">
-        delete
-        from diet
-        where id = #{id};
+        delete from diet where id = #{id}
     </delete>
 
-    <update id="int setDietById">
+    <update id="setDietById">
         update diet
         <set>
             <if test="diet.breakfast != null and diet.breakfast != ''">
@@ -35,12 +33,9 @@
                 remark = #{diet.remark},
             </if>
             <if test="diet.date != null and diet.date != ''">
-                date = #{diet,date}
+                date = #{diet.date}
             </if>
         </set>
-        where id = #{id};
+        where id = #{id}
     </update>
-
-
-
 </mapper>
