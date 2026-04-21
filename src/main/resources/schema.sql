@@ -119,14 +119,6 @@ CREATE TABLE IF NOT EXISTS favorite (
     FOREIGN KEY (post_id) REFERENCES post(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 打卡表
-CREATE TABLE IF NOT EXISTS check_in (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
-    date VARCHAR(255) NOT NULL,
-    UNIQUE KEY uk_check_in (user_id, date),
-    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 打卡表
 CREATE TABLE IF NOT EXISTS check_in (
@@ -146,4 +138,28 @@ CREATE TABLE IF NOT EXISTS post_like (
     UNIQUE KEY uk_post_like (user_id, post_id),
     FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
     FOREIGN KEY (post_id) REFERENCES post(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- AI对话记录表
+CREATE TABLE IF NOT EXISTS chat_message (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    role VARCHAR(20) NOT NULL,
+    content TEXT NOT NULL,
+    date VARCHAR(255),
+    user_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- RAG知识库切片表
+CREATE TABLE IF NOT EXISTS knowledge_chunk (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    source VARCHAR(255) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    content TEXT NOT NULL,
+    vector TEXT,
+    date VARCHAR(255),
+    user_id INT NOT NULL DEFAULT 0,
+    INDEX idx_category (category),
+    INDEX idx_source (source),
+    INDEX idx_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

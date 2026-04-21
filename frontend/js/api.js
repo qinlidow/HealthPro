@@ -100,6 +100,24 @@ const API_ENDPOINTS = {
     // 文件上传相关
     file: {
         upload: '/File/Upload'                       // POST - 上传文件
+    },
+
+    // AI智能问答相关
+    ai: {
+        chat: '/Ai/Chat',            // POST - 发送消息给AI
+        history: '/Ai/History',      // GET - 获取历史对话
+        clear: '/Ai/Clear'           // DELETE - 清空对话记录
+    },
+
+    // RAG知识库管理相关
+    knowledge: {
+        upload: '/Knowledge/Upload',          // POST - 上传文档到知识库
+        add: '/Knowledge/Add',              // POST - 添加知识(手动文本)
+        list: '/Knowledge/List',            // GET - 获取知识列表
+        count: '/Knowledge/Count',          // GET - 获取知识数量
+        delete: '/Knowledge/Delete',        // DELETE - 删除知识(按来源)
+        clear: '/Knowledge/Clear',          // DELETE - 清空知识库
+        rebuildIndex: '/Knowledge/RebuildIndex'  // POST - 重建向量索引
     }
 };
 
@@ -545,6 +563,69 @@ const api = {
             console.error('文件上传错误:', error);
             return { success: false, data: null, message: '文件上传失败' };
         }
+    },
+
+    // ==================== AI智能问答 ====================
+
+    async aiChat(message) {
+        return await http.post(API_ENDPOINTS.ai.chat, { message });
+    },
+
+    async getAiHistory() {
+        return await http.get(API_ENDPOINTS.ai.history);
+    },
+
+    async clearAiHistory() {
+        return await http.delete(API_ENDPOINTS.ai.clear);
+    },
+
+    // ==================== RAG知识库管理 ====================
+
+    async uploadKnowledge(file, category) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('category', category);
+        const token = http.getToken();
+        try {
+            const response = await fetch(API_BASE_URL + API_ENDPOINTS.knowledge.upload, {
+                method: 'POST',
+                headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+                body: formData
+            });
+            const data = await response.json();
+            if (data.code === 200) {
+                return { success: true, data: data.data, message: data.message };
+            } else {
+                return { success: false, data: null, message: data.message };
+            }
+        } catch (error) {
+            console.error('知识库上传错误:', error);
+            return { success: false, data: null, message: '上传失败' };
+        }
+    },
+
+    async addKnowledge(data) {
+        return await http.post(API_ENDPOINTS.knowledge.add, data);
+    },
+
+    async getKnowledgeList() {
+        return await http.get(API_ENDPOINTS.knowledge.list);
+    },
+
+    async getKnowledgeCount() {
+        return await http.get(API_ENDPOINTS.knowledge.count);
+    },
+
+    async deleteKnowledge(source) {
+        return await http.delete(`${API_ENDPOINTS.knowledge.delete}?source=${encodeURIComponent(source)}`);
+    },
+
+    async clearKnowledge() {
+        return await http.delete(API_ENDPOINTS.knowledge.clear);
+    },
+
+    async rebuildKnowledgeIndex() {
+        return await http.post(API_ENDPOINTS.knowledge.rebuildIndex);
     }
 };
 

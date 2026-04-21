@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HealthPro - 首页</title>
+    <title>WeHealth - 首页 - 守护您的健康</title>
     <link rel="stylesheet" href="../css/common.css">
     <link rel="stylesheet" href="../css/components.css">
     <style>
@@ -233,7 +233,7 @@
             }
             
             .quick-stats {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(3, 1fr);
             }
             
             .feature-grid {
@@ -246,7 +246,7 @@
     <!-- 顶部导航栏 -->
     <nav class="navbar">
         <a href="index.html" class="navbar-brand">
-            <span>HealthPro</span>
+            <span>WeHealth</span>
         </a>
         <div class="navbar-menu">
             <a href="index.html" class="navbar-item active">首页</a>
@@ -255,6 +255,7 @@
             <a href="sleep.html" class="navbar-item">睡眠管理</a>
             <a href="fitness.html" class="navbar-item">健身管理</a>
             <a href="social.html" class="navbar-item">社交广场</a>
+            <a href="chat.html" class="navbar-item">AI助手</a>
         </div>
         <div class="navbar-user" onclick="location.href='user.html'">
             <div class="avatar" id="userAvatar">U</div>
@@ -267,7 +268,7 @@
         <!-- 欢迎区域 -->
         <div class="welcome-section">
             <div class="welcome-content">
-                <h1 class="welcome-title">👋 欢迎回来，<span id="welcomeName">用户</span></h1>
+                <h1 class="welcome-title">欢迎回来，<span id="welcomeName">用户</span></h1>
                 <p class="welcome-subtitle">今天是 <span id="todayDate"></span>，让我们一起关注健康吧！</p>
                 <div class="quick-stats">
                     <div class="quick-stat">
@@ -275,16 +276,12 @@
                         <div class="quick-stat-label">BMI指数</div>
                     </div>
                     <div class="quick-stat">
-                        <div class="quick-stat-value" id="statSteps">0</div>
-                        <div class="quick-stat-label">今日步数</div>
+                        <div class="quick-stat-value" id="statCalories">尚未记录运动</div>
+                        <div class="quick-stat-label">今日消耗</div>
                     </div>
                     <div class="quick-stat">
-                        <div class="quick-stat-value" id="statCalories">0</div>
-                        <div class="quick-stat-label">消耗卡路里</div>
-                    </div>
-                    <div class="quick-stat">
-                        <div class="quick-stat-value" id="statSleep">0h</div>
-                        <div class="quick-stat-label">昨晚睡眠</div>
+                        <div class="quick-stat-value" id="statSleep">尚未记录睡眠</div>
+                        <div class="quick-stat-label">昨日睡眠</div>
                     </div>
                 </div>
             </div>
@@ -337,10 +334,6 @@
                             <div class="feature-stat-value" id="sleepRecords">0</div>
                             <div class="feature-stat-label">记录数</div>
                         </div>
-                        <div class="feature-stat">
-                            <div class="feature-stat-value" id="sleepQuality">--</div>
-                            <div class="feature-stat-label">平均质量</div>
-                        </div>
                     </div>
                     <span class="feature-arrow">→</span>
                 </div>
@@ -358,6 +351,20 @@
                         <div class="feature-stat">
                             <div class="feature-stat-value" id="fitnessCalories">0</div>
                             <div class="feature-stat-label">总消耗</div>
+                        </div>
+                    </div>
+                    <span class="feature-arrow">→</span>
+                </div>
+                
+                <!-- AI健康助手 -->
+                <div class="feature-card" onclick="location.href='chat.html'" style="--feature-color: #00BCD4; --feature-bg: #E0F7FA;">
+                    <div class="feature-icon">🤖</div>
+                    <h3 class="feature-title">AI健康助手</h3>
+                    <p class="feature-desc">智能分析您的健康数据，提供个性化饮食、运动和睡眠建议</p>
+                    <div class="feature-stats">
+                        <div class="feature-stat">
+                            <div class="feature-stat-value">AI</div>
+                            <div class="feature-stat-label">智能问答</div>
                         </div>
                     </div>
                     <span class="feature-arrow">→</span>
@@ -417,6 +424,10 @@
         <a href="social.html" class="bottom-nav-item">
             <span class="bottom-nav-icon">👥</span>
             <span class="bottom-nav-text">广场</span>
+        </a>
+        <a href="chat.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">🤖</span>
+            <span class="bottom-nav-text">智能助理</span>
         </a>
         <a href="user.html" class="bottom-nav-item">
             <span class="bottom-nav-icon">👤</span>
@@ -501,13 +512,19 @@
                     const data = result.data;
                     document.getElementById('sleepRecords').textContent = data.length;
                     
-                    // 平均睡眠质量
-                    const avgQuality = data.reduce((sum, item) => sum + item.quality, 0) / data.length;
-                    document.getElementById('sleepQuality').textContent = Math.round(avgQuality) + '%';
+                    // 查找昨日睡眠记录
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    const yesterdayStr = yesterday.getFullYear() + '-' + 
+                        String(yesterday.getMonth() + 1).padStart(2, '0') + '-' + 
+                        String(yesterday.getDate()).padStart(2, '0');
                     
-                    // 最新睡眠时长
-                    const latest = data[data.length - 1];
-                    document.getElementById('statSleep').textContent = latest.duration + 'h';
+                    const yesterdaySleep = data.find(item => item.date === yesterdayStr);
+                    if (yesterdaySleep && yesterdaySleep.duration) {
+                        document.getElementById('statSleep').textContent = yesterdaySleep.duration + 'h';
+                    } else {
+                        document.getElementById('statSleep').textContent = '尚未记录睡眠';
+                    }
                 }
             } catch (error) {
                 console.error('加载睡眠数据失败:', error);
@@ -522,10 +539,25 @@
                     const data = result.data;
                     document.getElementById('fitnessRecords').textContent = data.length;
                     
-                    // 总消耗卡路里
+                    // 总消耗卡路里（功能卡片）
                     const totalCalories = data.reduce((sum, item) => sum + (item.calories || 0), 0);
                     document.getElementById('fitnessCalories').textContent = totalCalories;
-                    document.getElementById('statCalories').textContent = data.length > 0 ? data[data.length - 1].calories : 0;
+                    
+                    // 今日运动消耗卡路里总数
+                    const today = new Date();
+                    const todayStr = today.getFullYear() + '-' + 
+                        String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                        String(today.getDate()).padStart(2, '0');
+                    
+                    const todayCalories = data
+                        .filter(item => item.date === todayStr)
+                        .reduce((sum, item) => sum + (item.calories || 0), 0);
+                    
+                    if (todayCalories > 0) {
+                        document.getElementById('statCalories').textContent = todayCalories + ' kcal';
+                    } else {
+                        document.getElementById('statCalories').textContent = '尚未记录运动';
+                    }
                 }
             } catch (error) {
                 console.error('加载健身数据失败:', error);

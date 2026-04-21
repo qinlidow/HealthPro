@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HealthPro - 用户中心</title>
+    <title>WeHealth - 用户中心</title>
     <link rel="stylesheet" href="../css/common.css">
     <link rel="stylesheet" href="../css/components.css">
     <style>
@@ -81,7 +81,7 @@
         
         .stats-cards {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            //grid-template-columns: repeat(3, 1fr);
             gap: 16px;
             margin-bottom: 24px;
         }
@@ -191,7 +191,7 @@
     <!-- 顶部导航栏 -->
     <nav class="navbar">
         <a href="index.html" class="navbar-brand">
-            <span>HealthPro</span>
+            <span>WeHealth</span>
         </a>
         <div class="navbar-menu">
             <a href="index.html" class="navbar-item">首页</a>
@@ -200,6 +200,7 @@
             <a href="sleep.html" class="navbar-item">睡眠管理</a>
             <a href="fitness.html" class="navbar-item">健身管理</a>
             <a href="social.html" class="navbar-item">社交广场</a>
+            <a href="chat.html" class="navbar-item">AI助手</a>
         </div>
         <div class="navbar-user">
             <div class="avatar" id="userAvatar">U</div>
@@ -298,22 +299,8 @@
                     </div>
                     <span class="menu-arrow">›</span>
                 </div>
-                <div class="menu-item">
-                    <div class="menu-icon" style="background: #E0F2F1;">📊</div>
-                    <div class="menu-content">
-                        <div class="menu-label">数据导出</div>
-                        <div class="menu-desc">导出健康数据报告</div>
-                    </div>
-                    <span class="menu-arrow">›</span>
-                </div>
-                <div class="menu-item">
-                    <div class="menu-icon" style="background: #FBE9E7;">❓</div>
-                    <div class="menu-content">
-                        <div class="menu-label">帮助与反馈</div>
-                        <div class="menu-desc">使用帮助、意见反馈</div>
-                    </div>
-                    <span class="menu-arrow">›</span>
-                </div>
+              
+    
                 <div class="menu-item" onclick="handleLogout()">
                     <div class="menu-icon" style="background: #FFEBEE;">🚪</div>
                     <div class="menu-content">
@@ -351,6 +338,10 @@
         <a href="social.html" class="bottom-nav-item">
             <span class="bottom-nav-icon">👥</span>
             <span class="bottom-nav-text">广场</span>
+        </a>
+        <a href="chat.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">🤖</span>
+            <span class="bottom-nav-text">智能助理</span>
         </a>
         <a href="user.html" class="bottom-nav-item active">
             <span class="bottom-nav-icon">👤</span>

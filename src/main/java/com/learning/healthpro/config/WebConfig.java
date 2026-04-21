@@ -18,8 +18,8 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(jwtInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/Login", "/Register",
-                        "/", "/index.html", "/login.html",
-                        "/css/**", "/js/**", "/pages/**", "/static/**",
+                        "/", "/frontend/index.html", "/frontend/login.html",
+                        "/frontend/css/**", "/frontend/js/**", "/frontend/pages/**", "/frontend/static/**",
                         "/File/Get/**");
     }
 
